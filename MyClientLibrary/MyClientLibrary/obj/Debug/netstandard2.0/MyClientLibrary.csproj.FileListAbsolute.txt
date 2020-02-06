@@ -1,0 +1,7 @@
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\obj\Debug\netstandard2.0\MyClientLibrary.AssemblyInfoInputs.cache
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\obj\Debug\netstandard2.0\MyClientLibrary.AssemblyInfo.cs
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\bin\Debug\netstandard2.0\MyClientLibrary.deps.json
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\bin\Debug\netstandard2.0\MyClientLibrary.dll
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\bin\Debug\netstandard2.0\MyClientLibrary.pdb
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\obj\Debug\netstandard2.0\MyClientLibrary.dll
+C:\Users\wgius\Documents\GitHub\Lightstreamer-lib-client-dotnet\MyClientLibrary\MyClientLibrary\obj\Debug\netstandard2.0\MyClientLibrary.pdb

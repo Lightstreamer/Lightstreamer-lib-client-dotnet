@@ -1,0 +1,111 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\wgius\\Documents\\GitHub\\Lightstreamer-lib-client-dotnet\\MyClientLibrary\\MyClientLibrary\\MyClientLibrary.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\wgius\\Documents\\GitHub\\Lightstreamer-lib-client-dotnet\\MyClientLibrary\\MyClientLibrary\\MyClientLibrary.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\wgius\\Documents\\GitHub\\Lightstreamer-lib-client-dotnet\\MyClientLibrary\\MyClientLibrary\\MyClientLibrary.csproj",
+        "projectName": "MyClientLibrary",
+        "projectPath": "C:\\Users\\wgius\\Documents\\GitHub\\Lightstreamer-lib-client-dotnet\\MyClientLibrary\\MyClientLibrary\\MyClientLibrary.csproj",
+        "packagesPath": "C:\\Users\\wgius\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\wgius\\Documents\\GitHub\\Lightstreamer-lib-client-dotnet\\MyClientLibrary\\MyClientLibrary\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\wgius\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "Akka": {
+              "target": "Package",
+              "version": "[1.3.17, )"
+            },
+            "CookieManager": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "DotNetty.Buffers": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "DotNetty.Codecs.Http": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "DotNetty.Codecs.Mqtt": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "DotNetty.Common": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "DotNetty.Handlers": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "DotNetty.Transport": {
+              "target": "Package",
+              "version": "[0.6.0, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            },
+            "System.Management": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
