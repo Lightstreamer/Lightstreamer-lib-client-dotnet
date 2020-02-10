@@ -113,9 +113,9 @@ The following code shows at console the value of changed fields each time a new 
 
 To build the library, follow below steps:
 
-1. Create a new Visual Studio project (we used Visual Studio 2019) for <i>"Class Library (.NET Standard)"</i>
+1. Create a new Visual Studio project (we used Visual Studio 2019) for `Class Library (.NET Standard)`
 2. Remove auto created class.cs source file
-3. Add the all the existing resources contained in the Lightstreamer_DotNet_Client_Unified folder
+3. Add all the existing resources contained in the `Lightstreamer_DotNet_Client_Unified` folder
 4. Add NuGet references for:
 	- Akka
 	- CookieManager
