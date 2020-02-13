@@ -143,6 +143,14 @@ The library requires Lightstremaer Server 7.0.1
 
 - [API Reference](https://lightstreamer.com/api/ls-dotnetstandard-client/latest/api/Index.html)
 
+## Other GitHub projects using this library
+
+- [Lightstreamer-example-Quickstart-client-dotnet ](https://github.com/Lightstreamer/Lightstreamer-example-Quickstart-client-dotnet)
+- [Lightstreamer-example-StockList-client-dotnet ](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-dotnet)
+- [Lightstreamer-example-Portfolio-client-dotnet ](https://github.com/Lightstreamer/Lightstreamer-example-Portfolio-client-dotnet)
+- [Lightstreamer-example-StockList-client-Xamarin ](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-Xamarin)
+- [Lightstreamer-example-basic2-client-unity](https://github.com/Lightstreamer/Lightstreamer-example-basic2-client-unity)
+
 ## Support
 
 For questions and support please use the [Official Forum](https://forums.lightstreamer.com/). The issue list of this page is **exclusively** for bug reports and feature requests.
