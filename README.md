@@ -139,7 +139,7 @@ The library requires Lightstremaer Server 7.0.1
 
 - [NuGet package](https://www.nuget.org/packages/Lightstreamer.DotNetStandard.Client/)
 
-- [Live demos](https://demos.lightstreamer.com/?p=lightstreamer&t=client&sclientmicrosoft=dotnet&sclientmicrosoft=xamarin)
+- [Live demos](https://demos.lightstreamer.com/?p=lightstreamer&t=client&sclientmicrosoft=dotnet&sclientmicrosoft=xamarin&lclient=unity)
 
 - [API Reference](https://lightstreamer.com/api/ls-dotnetstandard-client/latest/api/Index.html)
 
