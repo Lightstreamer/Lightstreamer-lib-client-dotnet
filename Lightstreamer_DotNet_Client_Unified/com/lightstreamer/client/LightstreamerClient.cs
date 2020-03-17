@@ -177,6 +177,9 @@ namespace com.lightstreamer.client
 
             log.Info("New Lightstreamer Client instanced (library version: " + LIB_NAME + " " + LIB_VERSION + ")");
 
+            // Environment.SetEnvironmentVariable("io.netty.allocator.type", "unpooled");
+            Environment.SetEnvironmentVariable("io.netty.allocator.maxOrder", "5");
+
             sessionThreadSet.Push(sessionThread);
             /* set circular dependencies */
             sessionThread.SessionManager = manager;

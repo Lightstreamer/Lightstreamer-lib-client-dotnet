@@ -525,12 +525,16 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
                     ctx.FireChannelRead(textFrame.Content.Retain());
 
+                    log.Debug("WS Read rc: " + textFrame.ReferenceCount);
+
                 }
                 else if (frame is ContinuationWebSocketFrame)
                 {
                     ContinuationWebSocketFrame textFrame = (ContinuationWebSocketFrame)frame;
 
                     ctx.FireChannelRead(textFrame.Content.Retain());
+
+                    log.Debug("WS Read rc: " + textFrame.ReferenceCount);
 
                 }
                 else if (frame is PongWebSocketFrame)

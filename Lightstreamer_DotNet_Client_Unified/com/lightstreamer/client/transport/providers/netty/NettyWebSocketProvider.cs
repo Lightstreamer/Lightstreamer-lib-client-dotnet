@@ -197,6 +197,9 @@ namespace com.lightstreamer.client.transport.providers.netty
             {
                 lock (this)
                 {
+
+                    log.Debug("Release .... ");
+
                     if (!closed)
                     {
                         if (!released)
@@ -229,6 +232,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                             }
                             closed = true;
                             ch.CloseAsync();
+                            
                             // NB putting a closed channel in the pool has no bad effect and further completes its life cycle
                             pool.ReleaseAsync(ch);
                         }

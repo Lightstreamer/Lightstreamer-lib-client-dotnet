@@ -1,4 +1,5 @@
-﻿using DotNetty.Common.Internal;
+﻿using DotNetty.Buffers;
+using DotNetty.Common.Internal;
 using DotNetty.Common.Utilities;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
@@ -161,9 +162,15 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         public async ValueTask<bool> ReleaseAsync(IChannel channel)
         {
             Contract.Requires(channel != null);
+
+            log.Debug("ReleaseAsync for " + channel.Id);
+
             try
             {
                 IEventLoop loop = channel.EventLoop;
+
+                log.Debug("ReleaseAsync -0- for " + loop.InEventLoop);
+
                 if (loop.InEventLoop)
                 {
                     return await this.DoReleaseChannel(channel);
@@ -198,34 +205,32 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
         async ValueTask<bool> DoReleaseChannel(IChannel channel)
         {
+
+            log.Debug("DoReleaseChannel -0- for " + channel.Id);
+
             Contract.Assert(channel.EventLoop.InEventLoop);
 
-            // Remove the POOL_KEY attribute from the Channel and check if it was acquired from this pool, if not fail.
-            if (channel.GetAttribute(PoolKey).GetAndSet(null) != this)
+            log.Debug("DoReleaseChannel -1- for " + PoolKey);
+
+            try
+            {
+
+                log.Debug("DoReleaseChannel -- " + this.ReleaseHealthCheck);
+
+                if (this.ReleaseHealthCheck)
+                {
+                    return await this.DoHealthCheckOnRelease(channel);
+                }
+                else
+                {
+                    this.ReleaseAndOffer(channel);
+                    return true;
+                }
+            }
+            catch
             {
                 CloseChannel(channel);
-                // Better include a stacktrace here as this is an user error.
-                throw new ArgumentException($"Channel {channel} was not acquired from this ChannelPool");
-            }
-            else
-            {
-                try
-                {
-                    if (this.ReleaseHealthCheck)
-                    {
-                        return await this.DoHealthCheckOnRelease(channel);
-                    }
-                    else
-                    {
-                        this.ReleaseAndOffer(channel);
-                        return true;
-                    }
-                }
-                catch
-                {
-                    CloseChannel(channel);
-                    throw;
-                }
+                throw;
             }
         }
 
@@ -257,6 +262,9 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         {
             if (this.TryOfferChannel(channel))
             {
+
+                log.Debug("ChannelReleased " + channel.Id);
+
                 this.Handler.ChannelReleased(channel);
             }
             else
