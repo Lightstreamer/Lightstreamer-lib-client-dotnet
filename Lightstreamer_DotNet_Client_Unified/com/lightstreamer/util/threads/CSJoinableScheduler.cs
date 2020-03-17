@@ -35,6 +35,7 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
                 while (currentTasks.Count > 0)
                 {
                     currentTasks.Pop().Wait();
+                    log.Debug("Pop -1 task.");
                 }
             }
         }
@@ -61,7 +62,8 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
                     }
 
                 }, ct);
-                currentTasks.Push(tsk_p);
+                // currentTasks.Push(tsk_p);
+                // log.Debug("Push +1 task.");
             }
 
             return ts;
