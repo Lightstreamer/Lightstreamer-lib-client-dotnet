@@ -2,6 +2,28 @@
 
 
 
+
+## 5.0.5 - <i>Released on 16 Jun 2020</i>
+
+<i>Compatible with Lightstreamer Server since 7.0.1.</i><br/>
+
+Fixed a bug that could cause the application to crash due to an unexpected URI format.
+
+
+## 5.0.4 - <i>Released on 12 Jun 2020</i>
+
+<i>Compatible with Lightstreamer Server since 7.0.1.</i><br/>
+
+Fixed a bug that in rare cases could cause the application to crash due to a missing catch of an exception.
+
+
+## 5.0.3 - <i>Released on 3 Jun 2020</i>
+
+<i>Compatible with Lightstreamer Server since 7.0.1.</i><br/>
+
+Fixed a bug due to a possible race condition that could prevent the stream-sense algorithm from completing.
+
+
 ## 5.0.2 - <i>Released on 18 Mar 2020</i>
 
 <i>Compatible with Lightstreamer Server since 7.0.1.</i><br/>
