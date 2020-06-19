@@ -2,7 +2,7 @@
 
 
 
-## 5.0.2 - <i>Released on 18 Mar 2019</i>
+## 5.0.2 - <i>Released on 18 Mar 2020</i>
 
 <i>Compatible with Lightstreamer Server since 7.0.1.</i><br/>
 
