@@ -22,7 +22,7 @@
             }
         }
 
-        protected override Task ConnectChannel(IChannel chnl)
+        protected override Task ConnectChannel(IChannel chnl, long timeout)
         {
 
             var wcuf = new WebSocketChannelUpgradeFuture(chnl, address);
@@ -32,9 +32,9 @@
                 log.Debug("Wait WS upgrade completition.");
             }
 
-            wcuf.AwaitChannel();
+            wcuf.AwaitChannel(timeout);
 
-            return wcuf.UpgardeTask;
+            return wcuf.UpgradeTask;
         }
     }
 }

@@ -75,13 +75,17 @@ namespace com.lightstreamer.client.protocol
             WebSocket _wsTransport = wsTransport;
             ListenableFuture _openWsFuture = openWsFuture;
 
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("Status timeout in " + options.CurrentConnectTimeout + " [currentConnectTimeoutWS]");
+            }
             sessionThread.schedule(new Task(() =>
            {
                if (log.IsDebugEnabled)
                {
                    log.Debug("Timeout event [currentConnectTimeoutWS]");
                }
-               if (_wsTransport.State.Equals(InternalState.CONNECTING))
+               if ( (_wsTransport.State.Equals(InternalState.CONNECTING)) || (_wsTransport.State.Equals(InternalState.UNEXPECTED_ERROR)) )
                {
                    sessionLog.Debug("WS connection: aborted");
                    _openWsFuture.reject();

@@ -40,6 +40,8 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         private readonly bool ReleaseHealthCheck;
         private readonly IChannelPool parentPool;
 
+        private long timeout = 4000;
+
         /// <summary>
         /// Creates a new channel pool.
         /// </summary>
@@ -62,11 +64,13 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             this.store = (IQueue<IChannel>)new CompatibleConcurrentStack<IChannel>();
         }
 
-        public async virtual ValueTask<IChannel> AcquireNewOr()
+        public async virtual ValueTask<IChannel> AcquireNewOr(long timeout)
         {
             IChannel chl;
             bool b = this.store.TryDequeue(out chl);
 
+
+            this.timeout = timeout;
             if (!b)
             {
                 Bootstrap bs = this.bootstrap.Clone();
@@ -79,7 +83,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                     IChannel chnl = await parentPool.AcquireAsync();
                     log.Debug(" ... Channel " + chnl);
 
-                    await ConnectChannel(chnl);
+                    await ConnectChannel(chnl, timeout);
 
                     return chnl;
                 }
@@ -94,7 +98,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             IEventLoop eventLoop = chl.EventLoop;
             if (eventLoop.InEventLoop)
             {
-                return await this.DoHealthCheck(chl);
+                return await this.DoHealthCheck(chl, timeout);
             }
             else
             {
@@ -105,14 +109,14 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             // return acquire(bootstrap.Config().group().next().newPromise<IChannel>());
         }
 
-        protected abstract Task ConnectChannel(IChannel chnl);
+        protected abstract Task ConnectChannel(IChannel chnl, long timeout);
 
         async void DoHealthCheck(object channel, object state)
         {
             var promise = state as TaskCompletionSource<IChannel>;
             try
             {
-                var result = await this.DoHealthCheck((IChannel)channel);
+                var result = await this.DoHealthCheck((IChannel)channel, this.timeout);
                 promise.TrySetResult(result);
             }
             catch (Exception ex)
@@ -121,7 +125,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             }
         }
 
-        async ValueTask<IChannel> DoHealthCheck(IChannel channel)
+        async ValueTask<IChannel> DoHealthCheck(IChannel channel, long timeout)
         {
             Contract.Assert(channel.EventLoop.InEventLoop);
             try
@@ -143,13 +147,13 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                 else
                 {
                     CloseChannel(channel);
-                    return await AcquireNewOr();
+                    return await AcquireNewOr(timeout);
                 }
             }
             catch
             {
                 CloseChannel(channel);
-                return await AcquireNewOr();
+                return await AcquireNewOr(timeout);
             }
         }
 
@@ -322,7 +326,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
         ValueTask<IChannel> IChannelPool.AcquireAsync()
         {
-            return AcquireNewOr();
+            return AcquireNewOr(this.timeout);
         }
 
         void IDisposable.Dispose()

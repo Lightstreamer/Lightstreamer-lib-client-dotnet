@@ -230,12 +230,26 @@ namespace com.lightstreamer.client.transport.providers.netty
                     log.Debug("HTTP transport connection error (Couldn't get a socket, try again) (oid=" + objectId + "): " + format(uri, httpRequest));
                     log.Debug(" - " + ce.StackTrace);
                 }
+            }
+            catch (ConnectTimeoutException cte)
+            {
+                log.Info("Timeout error: " + cte.Message);
 
-                //sessionThread.schedule(new Task(() =>
-                //{
-                //    bindAsync(uri, target, httpListener, httpRequest, interruptionHandler);
-                //}), 500);
+                if (log.IsDebugEnabled)
+                {
+                    log.Debug("HTTP transport timeout error (Couldn't get a socket, try again) (oid=" + objectId + "): " + format(uri, httpRequest));
+                    log.Debug(" - " + cte.StackTrace);
+                }
+            }
+            catch (Exception e)
+            {
+                log.Info("Error: " + e.Message);
 
+                if (log.IsDebugEnabled)
+                {
+                    log.Debug("HTTP transport error (Couldn't get a socket, try again) (oid=" + objectId + "): " + format(uri, httpRequest));
+                    log.Debug(" - " + e.StackTrace);
+                }
             }
         }
 

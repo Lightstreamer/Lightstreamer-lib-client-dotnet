@@ -18,7 +18,7 @@ namespace com.lightstreamer.client.transport.providers
 		/// <param name="extraHeaders"> headers to be added during WebSocket handshake </param>
 		/// <param name="cookies"> cookies to be added during WebSocket handshake </param>
 		/// <param name="proxy"> if not null, the client connects to the proxy and the proxy forwards the messages to the host  </param>
-		void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy);
+		void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy, long timeout);
 
 		/// <summary>
 		/// Sends a message.

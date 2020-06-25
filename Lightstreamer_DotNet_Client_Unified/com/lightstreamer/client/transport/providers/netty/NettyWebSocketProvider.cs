@@ -64,7 +64,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             this.wsPoolManager = channelPool;
         }
 
-        public virtual async void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy)
+        public virtual async void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy, long timeout)
         {
             Uri uri = LsUtils.uri(address);
             string host = uri.Host;
@@ -78,7 +78,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 
             WebSocketChannelPool wsPool = (WebSocketChannelPool)wsPoolManager.get(extendedRemoteAddress);
 
-            IChannel ch = await wsPool.AcquireNewOr();
+            IChannel ch = await wsPool.AcquireNewOr(timeout);
 
             if (ch != null)
             {

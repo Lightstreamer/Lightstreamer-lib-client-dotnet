@@ -90,14 +90,19 @@ namespace com.lightstreamer.client.transport
             try
             {
                 uri = new Uri(serverAddress + "lightstreamer");
+
+                string cookies = CookieHelper.getCookieHeader(uri);
+                wsClient.connect(uri.ToString(), sessionListener, options.HttpExtraHeadersOnSessionCreationOnly ? null : options.HttpExtraHeaders, cookies, options.Proxy, options.RetryDelay);
+                sessionListener.state = InternalState.CONNECTING;
             }
             catch (Exception e)
             {
-                throw new System.InvalidOperationException(e.Message); // should never happen
+                //  throw new System.InvalidOperationException(e.Message); // should never happen; But it happened!!!!!!
+                log.Error("Unexpected error during URI validation. " + e.Message);
+                sessionListener.state = InternalState.UNEXPECTED_ERROR;
+                sessionListener.onBroken();
             }
-            string cookies = CookieHelper.getCookieHeader(uri);
-            wsClient.connect(uri.ToString(), sessionListener, options.HttpExtraHeadersOnSessionCreationOnly ? null : options.HttpExtraHeaders, cookies, options.Proxy);
-            sessionListener.state = InternalState.CONNECTING;
+           
 
         }
 
@@ -289,7 +294,11 @@ namespace com.lightstreamer.client.transport
             /// <summary>
             /// Transport can't connect to the server.
             /// </summary>
-            BROKEN
+            BROKEN,
+            /// <summary>
+            /// Unexpected error.
+            /// </summary>
+            UNEXPECTED_ERROR
         }
 
         /// <summary>
@@ -309,7 +318,7 @@ namespace com.lightstreamer.client.transport
 
         private class DummyWebSocketClient : WebSocketProvider
         {
-            public virtual void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy)
+            public virtual void connect(string address, SessionRequestListener networkListener, IDictionary<string, string> extraHeaders, string cookies, Proxy proxy, long timeout)
             {
             }
             public virtual void disconnect()

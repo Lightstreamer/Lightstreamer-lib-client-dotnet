@@ -32,7 +32,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
         private IChannel chnl;
         private static Task futureTask;
-        private static bool hsws;
+        private volatile bool _hsws;
 
         private StateMachine machine;
         private ExtendedNettyFullAddress address;
@@ -54,10 +54,10 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             this.address = address;
         }
 
-        public async void AwaitChannel()
+        public async void AwaitChannel(long timeout)
         {
 
-            hsws = false;
+            _hsws = false;
             if (chnl.Active)
             {
                 machine.setChannel(chnl, Phase.CONNECTION_OK);
@@ -70,9 +70,21 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
                 await futureTask;
 
-                while (!hsws)
+                int maxTimes = 1;
+
+                while (!_hsws)
                 {
                     Thread.Sleep(5);
+
+                    if ((maxTimes*10) >= (timeout))
+                    {
+                        _hsws = true;
+                        machine.next(Phase.UPGRADE_FAILURE);
+                    }
+                    else
+                    {
+                        maxTimes++;
+                    }
                 }
             }
             else
@@ -85,13 +97,13 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         internal void wshsfinished()
         {
             machine.next(Phase.UPGRADE_OK);
-            hsws = true;
+            _hsws = true;
         }
 
         internal void wshsfailed()
         {
             machine.next(Phase.UPGRADE_FAILURE);
-            hsws = true;
+            _hsws = true;
         }
 
         /// <summary>
@@ -99,8 +111,6 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         /// </summary>
         private void upgrade(ExtendedNettyFullAddress address)
         {
-
-            Task t = null;
             /*
 			 * ========================================= Note =================================================
 			 * Operations on the channel must happen in the thread associated with the channel.
@@ -164,11 +174,11 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                  }
                  else
                  {
-                    futureTask = null;
+                     futureTask = Task.Factory.StartNew(() => Thread.Sleep(2));
                  }
              });
 
-            return;
+            return ;
         }
 
         public virtual bool Done
@@ -187,7 +197,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             }
         }
 
-        public Task UpgardeTask { get => futureTask; set => futureTask = value; }
+        public Task UpgradeTask { get => futureTask; set => futureTask = value; }
 
         public virtual void addListener(ChannelUpgradeFuture_ChannelUpgradeFutureListener fl)
         {
