@@ -224,6 +224,10 @@ namespace com.lightstreamer.client.protocol
 
         public virtual void close(bool waitPending)
         {
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("ws close " + wsTransport );
+            }
             if (wsTransport != null)
             {
                 wsTransport.close();

@@ -330,18 +330,23 @@ namespace com.lightstreamer.client
 
             internal virtual Subscription extractSubscriptionOrUnsubscribe(int subscriptionId)
             {
-                Subscription subscription = outerInstance.subscriptions[subscriptionId];
-                if (subscription != null)
+                try
                 {
-                    return subscription;
+                    Subscription subscription = outerInstance.subscriptions[subscriptionId];
+                    if (subscription != null)
+                    {
+                        return subscription;
+                    }
+                } catch (KeyNotFoundException)
+                {
+                    //the subscription was removed
+                    //either we have a delete that is now pending
+                    //or we skipped the unsubscribe because we didn't know 
+                    //the status of the subscription (may only happen in case of
+                    //synchronous onSubscription events or during
+                    //onSubscription events)
                 }
 
-                //the subscription was removed
-                //either we have a delete that is now pending
-                //or we skipped the unsubscribe because we didn't know 
-                //the status of the subscription (may only happen in case of
-                //synchronous onSubscription events or during
-                //onSubscription events)
                 if (!outerInstance.pendingDelete.Contains(subscriptionId))
                 {
                     outerInstance.unsubscribe(subscriptionId);
