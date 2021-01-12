@@ -414,7 +414,10 @@ namespace com.lightstreamer.client
         {
             log.Info("Reset message handler");
             sessionAlive = false;
-            abortAll();
+
+            log.Debug("Aborting pending messages");
+            abortAll(pendingMessages);
+            abortAll(forwardedMessages);
 
             //reset the counters
             sequences = new Dictionary<string, int>();
@@ -438,13 +441,12 @@ namespace com.lightstreamer.client
             sendPending();
         }
 
-        private void abortAll()
+        private void abortAll(Matrix<string, int, MessageWrap> messages)
         {
             // called at session end: we have to call abort on all the messages we had no answer for
-            log.Debug("Aborting pending messages");
 
             // we have to call the listeners in the proper order (within each sequence)
-            IList<MessageWrap> forwarded = forwardedMessages.sortAndCleanMatrix();
+            IList<MessageWrap> forwarded = messages.sortAndCleanMatrix();
 
             foreach (MessageWrap envelope in forwarded)
             {
