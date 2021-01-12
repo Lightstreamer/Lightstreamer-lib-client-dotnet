@@ -109,7 +109,6 @@ namespace com.lightstreamer.client
         //from EventsThread
         public virtual void disconnect()
         {
-
             this.connectionRequested = false;
 
             sessionThread.queue(new Task(() =>
