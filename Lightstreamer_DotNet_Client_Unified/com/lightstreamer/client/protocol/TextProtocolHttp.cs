@@ -58,6 +58,12 @@ namespace com.lightstreamer.client.protocol
             reverseHeartbeatTimer.onBindSession(false);
         }
 
+        
+        protected override void forwardDestroyRequest(DestroyRequest request, RequestTutor tutor, RequestListener reqListener)
+        {
+            // don't send destroy request when transport is http
+        }
+
         public override string DefaultSessionId
         {
             set

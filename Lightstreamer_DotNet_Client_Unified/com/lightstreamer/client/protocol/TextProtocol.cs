@@ -224,9 +224,11 @@ namespace com.lightstreamer.client.protocol
         {
             RequestListener reqListener = new ControlRequestListenerAnonymousInnerClass2(this, tutor);
             // destroy is always sent via HTTP
-            httpRequestManager.addRequest(request, tutor, reqListener);
+            // httpRequestManager.addRequest(request, tutor, reqListener);
+            forwardDestroyRequest(request, tutor, reqListener);
         }
 
+        protected abstract void forwardDestroyRequest(DestroyRequest request, RequestTutor tutor, RequestListener reqListener);
         private class ControlRequestListenerAnonymousInnerClass2 : ControlRequestListener
         {
             private readonly TextProtocol outerInstance;

@@ -25,7 +25,7 @@ namespace com.lightstreamer.client.requests
 
             this.session = sessionID;
 
-            this.addParameter("LS_session", sessionID);
+            // this.addParameter("LS_session", sessionID);
 
             if (!string.ReferenceEquals(closeReason, null))
             {

@@ -123,6 +123,11 @@ namespace com.lightstreamer.client.protocol
             reverseHeartbeatTimer.onBindSession(true);
         }
 
+        protected override void forwardDestroyRequest(DestroyRequest request, RequestTutor tutor, RequestListener reqListener)
+        {
+            wsRequestManager.addRequest(request, tutor, reqListener);
+        }
+
         public override string DefaultSessionId
         {
             set
