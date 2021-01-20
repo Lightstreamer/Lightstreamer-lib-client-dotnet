@@ -171,7 +171,7 @@ namespace com.lightstreamer.client
         private int tablePhase = 0;
         private SubscriptionManager manager;
         private SessionThread sessionThread;
-        private SnapshotManager snapshotManager;
+        private SnapshotManager[] snapshotByItem;
 
         /// <summary>
         /// Creates an object to be used to describe a Subscription that is going to be subscribed to 
@@ -1570,7 +1570,6 @@ namespace com.lightstreamer.client
             this.subscriptionId = subId;
             this.manager = manager;
             this.setPhase(WAITING);
-            this.snapshotManager = new SnapshotManager(isRequiredSnapshot, mode);
 
             if (log.IsDebugEnabled)
             {
@@ -1707,6 +1706,11 @@ namespace com.lightstreamer.client
 
             this.itemDescriptor.Size = items;
             this.fieldDescriptor.Size = fields;
+            this.snapshotByItem = new SnapshotManager[1 + items];
+            for (int i = 1; i <= items; i++)
+            {
+                this.snapshotByItem[i] = new SnapshotManager(isRequiredSnapshot, mode);
+            }
 
             this.dispatcher.dispatchEvent(new SubscriptionListenerSubscriptionEvent());
 
@@ -1864,7 +1868,7 @@ namespace com.lightstreamer.client
             }
 
             string name = this.itemDescriptor.getName(item);
-            snapshotManager.endOfSnapshot();
+            this.snapshotByItem[item].endOfSnapshot();
             this.dispatcher.dispatchEvent(new SubscriptionListenerEndOfSnapshotEvent(name, item));
         }
 
@@ -1968,7 +1972,7 @@ namespace com.lightstreamer.client
                 return;
             }
 
-            snapshotManager.update();
+            this.snapshotByItem[item].update();
 
             SortedSet<int> changedFields = this.prepareChangedSet(args);
 
@@ -2019,7 +2023,8 @@ namespace com.lightstreamer.client
             }
 
             string itemName = itemDescriptor.getName(item);
-            ItemUpdate updateObj = new ItemUpdate(itemName, item, snapshotManager.Snapshot, args, changedFields, fieldDescriptor);
+            bool snapshot = this.snapshotByItem[item].Snapshot;
+            ItemUpdate updateObj = new ItemUpdate(itemName, item, snapshot, args, changedFields, fieldDescriptor);
 
             this.dispatcher.dispatchEvent(new SubscriptionListenerItemUpdateEvent(updateObj));
 
@@ -2043,6 +2048,7 @@ namespace com.lightstreamer.client
 
             this.oldValuesByItem.clear();
             this.oldValuesByKey.clear();
+            this.snapshotByItem = null;
 
             //resets the schema size
             this.fieldDescriptor.Size = 0;
