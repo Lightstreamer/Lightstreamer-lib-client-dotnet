@@ -77,7 +77,7 @@ namespace com.lightstreamer.client.protocol
         public virtual void onBindSession(bool bindAsControl)
         {
             // // Debug.Assert(Assertions.SessionThread);
-            bindSent = true;
+            
             if (bindAsControl)
             {
                 /*
@@ -86,7 +86,11 @@ namespace com.lightstreamer.client.protocol
 				 */
                 lastSentTimeNs = Stopwatch.GetTimestamp();
             }
-            schedule();
+            if (!bindSent)
+            {
+                bindSent = true;
+                schedule();
+            }
         }
 
         /// <summary>
@@ -248,6 +252,10 @@ namespace com.lightstreamer.client.protocol
             sessionThread.schedule(new Task(() =>
             {
                 int phase = currentPhase;
+                if (log.IsDebugEnabled)
+                {
+                    log.Debug("rhb task fired ph " + phase);
+                }
                 if (phase < this.currentPhase)
                 {
                     if (log.IsDebugEnabled)
