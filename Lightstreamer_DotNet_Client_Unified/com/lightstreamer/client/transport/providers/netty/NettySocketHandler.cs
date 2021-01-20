@@ -43,6 +43,12 @@ namespace com.lightstreamer.client.transport.providers.netty
         private LineAssembler lineAssembler;
         private AtomicReference<IChannel> channelRef = new AtomicReference<IChannel>();
 
+        /**
+        * The flag is false when the server sends the header "Connection: close"
+        * and it is true when the header is "Connection: keep-alive".
+        */
+        private volatile bool keepalive = false;
+
         private void set(int status)
         {
             this.status = status;
@@ -135,6 +141,11 @@ namespace com.lightstreamer.client.transport.providers.netty
 
         private void reuse(IChannelHandlerContext ctx)
         {
+            
+            if (!keepalive)
+            {
+                closeChannel(ctx.Channel);
+            }
 
             if (this.socketListener != null)
             {
@@ -145,7 +156,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             }
             this.socketListener = null;
             this.interruptionHandler = null;
-
+            this.keepalive = false;
 
             this.set(OPEN);
         }
@@ -292,6 +303,8 @@ namespace com.lightstreamer.client.transport.providers.netty
                         return;
                     }
 
+                    keepalive = HttpUtil.IsKeepAlive(response);
+
                     foreach (string cookie in response.Headers.GetAllAsString(HttpHeaderNames.SetCookie))
                     {
                         CookieHelper.saveCookies(uri, cookie);
@@ -320,7 +333,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 
                     if (chunk is ILastHttpContent)
                     {
-                        //http complete, go back to open so that we can be reused
+                        //http complete, go back to open so that it can be reused
                         reuse(ctx);
                     }
                 }

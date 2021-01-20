@@ -59,6 +59,9 @@ namespace com.lightstreamer.client.transport.providers.netty
             }
         }
 
+        /**
+        * Notifies the closing and releases the channel to the channel pool.
+        */
         public virtual void onClosed()
         {
             if (!this.closedCalled)
