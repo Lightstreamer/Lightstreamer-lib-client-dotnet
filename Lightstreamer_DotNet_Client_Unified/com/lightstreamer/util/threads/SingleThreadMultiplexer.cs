@@ -26,18 +26,24 @@ namespace com.lightstreamer.util.threads
 
         public SingleThreadMultiplexer()
         {
-            scheduler = ExecutorFactory.DefaultExecutorFactory.getScheduledExecutor(1, "Session Thread", 1000);
             executor = ExecutorFactory.DefaultExecutorFactory.getExecutor(1, "Session Thread", 1000);
+            scheduler = ExecutorFactory.DefaultExecutorFactory.getScheduledExecutor(1, "Session Thread", 1000, executor);
+            
         }
 
         public virtual void await()
         {
+            log.Info("Await executor ... ");
             executor.join();
+            log.Info("Await scheduler ... ");
+            scheduler.join();
+            log.Info("Await done.");
         }
 
         public virtual void execute(S source, Action runnable)
         {
             executor.execute(runnable);
+            // scheduler.schedule(runnable, 0);
         }
 
         public virtual CancellationTokenSource schedule(S source, Action task, long delayMillis)

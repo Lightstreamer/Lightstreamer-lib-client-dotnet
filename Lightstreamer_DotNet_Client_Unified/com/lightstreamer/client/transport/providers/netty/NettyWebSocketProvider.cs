@@ -113,12 +113,13 @@ namespace com.lightstreamer.client.transport.providers.netty
 
         public virtual void disconnect()
         {
-            if (logPool.IsDebugEnabled)
-            {
-                logPool.Debug("WS disconnect [" + channel + "]");
-            }
             if (channel != null)
             {
+                if (logPool.IsDebugEnabled)
+                {
+                    logPool.Debug("WS disconnect [" + channel + "]");
+                }
+
                 channel.close();
                 channel = null;
             }
@@ -161,7 +162,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                 {
                     if (closed || released)
                     {
-                        log.Warn("Message discarded because the channel [" + ch.Id + "] is closed: " + message);
+                        log.Debug("Message discarded because the channel [" + ch.Id + "] is closed: " + message);
                         return;
                     }
                     if (listener != null)
@@ -183,7 +184,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 
                         if (antecedent.IsFaulted || antecedent.IsCanceled)
                         {
-                            ( (MyChannel)outerInstance ).onBroken(message, antecedent.Exception);
+                            ((MyChannel)outerInstance).onBroken(message, antecedent.Exception);
                         }
                     }, ch);
 
@@ -197,8 +198,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             {
                 lock (this)
                 {
-
-                    log.Debug("Release .... ");
+                    log.Debug("Release  [" + ch.Id + "]");
 
                     if (!closed)
                     {
@@ -218,25 +218,39 @@ namespace com.lightstreamer.client.transport.providers.netty
             /// <summary>
             /// Closes the channel if it has not been released yet.
             /// </summary>
-            public virtual void close()
+            public virtual async void close()
             {
-                lock (this)
+                if (!closed)
                 {
-                    if (!released)
+                    if (logPool.IsDebugEnabled)
                     {
-                        if (!closed)
-                        {
-                            if (logPool.IsDebugEnabled)
-                            {
-                                logPool.Debug("WS channel closed [" + ch.Id + "]");
-                            }
-                            closed = true;
-                            ch.CloseAsync();
-                            
-                            // NB putting a closed channel in the pool has no bad effect and further completes its life cycle
-                            pool.ReleaseAsync(ch);
-                        }
+                        logPool.Debug("WS channel closed [" + ch.Id + "]");
                     }
+
+                    try
+                    {
+                        await ch.CloseAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        logPool.Debug("Something wrong waiting channel close, skip. [" + ch.Id + "]");
+                    }
+
+                    closed = true;
+                }
+                else
+                {
+                    logPool.Info("WS channel already closed [" + ch.Id + "]");
+                }
+
+                // NB putting a closed channel in the pool has no bad effect and further completes its life cycle
+                if (!released)
+                {
+                    pool.ReleaseAsync(ch);
+                }
+                else
+                {
+                    logPool.Info("WS channel already released [" + ch.Id + "]");
                 }
             }
 
@@ -257,6 +271,11 @@ namespace com.lightstreamer.client.transport.providers.netty
                 {
                     return "" + ch.Id;
                 }
+            }
+
+            public bool IsClosed()
+            {
+                return closed;
             }
         }
 
@@ -336,6 +355,10 @@ namespace com.lightstreamer.client.transport.providers.netty
 
             public virtual void onMessage(string message)
             {
+                if (this.ch.IsClosed())
+                {
+                    log.Info("Message received despite the canal being closed: " + message);
+                }
                 listener.onMessage(message);
                 MatchCollection mLoop = TextProtocol.LOOP_REGEX.Matches(message);
                 MatchCollection mEnd = TextProtocol.END_REGEX.Matches(message);
@@ -353,6 +376,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             public virtual void onClosed()
             {
                 listener.onClosed();
+                log.Debug("OnClosed event fired for channel: " + this.ch.ch.Id);
             }
 
             public virtual void onBroken()

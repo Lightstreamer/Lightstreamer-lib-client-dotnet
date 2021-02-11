@@ -3,12 +3,13 @@ using com.lightstreamer.client.session;
 using com.lightstreamer.client.transport.providers;
 using CookieManager;
 using Lightstreamer.DotNet.Logging.Log;
+
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 /*
  * Copyright (c) 2004-2019 Lightstreamer s.r.l., Via Campanini, 6 - 20124 Milano, Italy.
@@ -64,7 +65,7 @@ namespace com.lightstreamer.client
         /// <summary>
         /// A constant string representing the version of the library.
         /// </summary>
-        public static readonly string LIB_VERSION = "5.0.5".Trim();
+        public static readonly string LIB_VERSION = "0.5.1".Trim();
 
         private static readonly Regex ext_alpha_numeric = new Regex("^[a-zA-Z0-9_]*$");
 
@@ -122,8 +123,6 @@ namespace com.lightstreamer.client
         private InternalConnectionOptions internalConnectionOptions;
         internal readonly SessionThread sessionThread = new SessionThread();
 
-        private static readonly ConcurrentStack<SessionThread> sessionThreadSet = new ConcurrentStack<SessionThread>();
-
         internal SessionManager manager;
 
         private LightstreamerEngine engine;
@@ -180,7 +179,8 @@ namespace com.lightstreamer.client
             // Environment.SetEnvironmentVariable("io.netty.allocator.type", "unpooled");
             Environment.SetEnvironmentVariable("io.netty.allocator.maxOrder", "5");
 
-            sessionThreadSet.Push(sessionThread);
+            // SessionThreadSet.sessionThreadSet.TryAdd(this.GetHashCode(), sessionThread);
+
             /* set circular dependencies */
             sessionThread.SessionManager = manager;
             /* */
@@ -312,13 +312,52 @@ namespace com.lightstreamer.client
         {
             lock (this)
             {
-                log.Info("Disconnect requested");
+                log.Info("Disconnect requested - " + this.connectionDetails.AdapterSet);
 
                 eventsThread.queue(() =>
                 {
                     engine.disconnect();
                 });
             }
+        }
+
+        /// <summary>
+        /// Works just like {@link LightstreamerClient#disconnect()}, but also returns 
+        /// a {@link Task} which will be completed
+        /// when all involved threads started by all {@link LightstreamerClient}
+        /// instances have been terminated, because no more activities
+        /// need to be managed and hence event dispatching is no longer necessary.
+        /// Such method is especially useful in those environments which require 
+        /// an appropriate resource management. The method should be used in replacement
+        /// of disconnect() in all those circumstances where it is indispensable to 
+        /// guarantee a complete shutdown of all user tasks, in order to avoid 
+        /// potential memory leaks and waste resources.
+        /// </summary>
+        /// <returns> A Task that will be completed when all the activities launched by
+        /// all {@link LightstreamerClient} instances are terminated.
+        /// </returns>
+        /// <seealso cref="disconnect" />
+        public Task DisconnectFuture() 
+        {
+            this.disconnect();
+            Action action = () =>
+            {
+                // Synchronous waiting for EventsThread completion.
+                eventsThread.await();
+
+                // Synchronous waiting for SessionThread completion.
+                sessionThread.await();
+
+                log.Info("DisconnectFuture end.");
+            };
+            Task t1 = new Task(action);
+            t1.Start();
+
+            return t1;
+        }
+        ~LightstreamerClient() 
+        {
+            log.Info("Im am disposing ...");
         }
 
         /// <summary>

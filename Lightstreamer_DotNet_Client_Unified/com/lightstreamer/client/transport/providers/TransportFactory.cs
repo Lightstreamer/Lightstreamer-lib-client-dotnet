@@ -93,7 +93,7 @@ namespace com.lightstreamer.client.transport.providers
             {
                 get
                 {
-                    string[] classes = new string[] { "com.lightstreamer.client.transport.providers.netty.NettyHttpProviderFactory", "com.lightstreamer.client.transport.providers.oio.OIOHttpProviderFactory" };
+                    string[] classes = new string[] { "com.lightstreamer.client.transport.providers.netty.NettyHttpProviderFactory" };
                     return classes;
                 }
             }

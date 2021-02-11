@@ -226,10 +226,11 @@ namespace com.lightstreamer.client.protocol
         {
             if (log.IsDebugEnabled)
             {
-                log.Debug("ws close " + wsTransport );
+                log.Debug("ws closing :" + wsTransport );
             }
             if (wsTransport != null)
             {
+
                 wsTransport.close();
                 wsTransport = null;
             }

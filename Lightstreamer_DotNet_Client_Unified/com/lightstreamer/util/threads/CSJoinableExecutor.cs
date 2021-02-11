@@ -3,12 +3,14 @@ using com.lightstreamer.util.threads.providers;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
 {
     class CSJoinableExecutor : JoinableExecutor
     {
+
         private ConcurrentQueue<Task> currentTasks = null;
         private string threadName;
         private long keepAliveTime;
@@ -17,7 +19,7 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
 
         public CSJoinableExecutor()
         {
-            currentTasks = new ConcurrentQueue<Task>(); ;
+            currentTasks = new ConcurrentQueue<Task>();
         }
 
         public CSJoinableExecutor(string threadName, long keepAliveTime)
@@ -26,7 +28,6 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
             this.threadName = threadName;
             this.keepAliveTime = keepAliveTime;
         }
-
         public void execute(Action task)
         {
             lock (this)
@@ -76,15 +77,39 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
 
         public void join()
         {
-            while (currentTasks.Count > 0)
+            lock (this)
             {
-                Task waitfor;
-                currentTasks.TryDequeue(out waitfor);
-                if (waitfor != null)
+                log.Debug("Executor count (pre-join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
+                if (currentTasks.Count > 0)
                 {
-                    waitfor.Wait();
+                    Task waitfor;
+                    currentTasks.TryDequeue(out waitfor);
+                    if (waitfor != null)
+                    {
+                        Task.WhenAny(waitfor, Task.Delay(1500)).Wait();
+                        if (!waitfor.IsCompleted)
+                        {
+                            log.Info("Task not completed before Disconnection end: " + waitfor.Id);
+                        }
+                    }
+
+                    while (currentTasks.Count > 0)
+                    {
+                        currentTasks.TryDequeue(out waitfor);
+                        if (waitfor != null)
+                        {
+                            waitfor.Start();
+                            Task.WhenAny(waitfor, Task.Delay(1500)).Wait();
+                            if (!waitfor.IsCompleted)
+                            {
+                                log.Info("Task not completed before Disconnection end: " + waitfor.Id);
+                            }
+                        }
+                    }
                 }
-            }
+                
+                log.Debug("Executor count (post join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
+            }   
         }
 
         private void goLoop()

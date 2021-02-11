@@ -13,12 +13,15 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
         private Stack<Task> currentTasks = null;
         private string threadName;
         private long keepAliveTime;
+        private JoinableExecutor executor;
+        private IDictionary<Task, CancellationTokenSource> cancs = new Dictionary<Task, CancellationTokenSource>();
+        /// <summary>
 
         private readonly ILogger log = LogManager.GetLogger(Constants.THREADS_LOG);
 
         public CSJoinableScheduler()
         {
-            currentTasks = new Stack<Task>(); ;
+            currentTasks = new Stack<Task>(); 
         }
 
         public CSJoinableScheduler(string threadName, long keepAliveTime)
@@ -27,23 +30,45 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
             this.threadName = threadName;
             this.keepAliveTime = keepAliveTime;
         }
+        public CSJoinableScheduler(string threadName, long keepAliveTime, JoinableExecutor executor)
+        {
+            currentTasks = new Stack<Task>();
+            this.threadName = threadName;
+            this.keepAliveTime = keepAliveTime;
+            this.executor = executor;
+        }
 
         public void join()
         {
             lock (currentTasks)
             {
-                while (currentTasks.Count > 0)
+                log.Debug("Scheduler count: " + cancs.Count + ", " + cancs.GetHashCode());
+
+                foreach (KeyValuePair<Task, CancellationTokenSource> entry in cancs)
                 {
-                    currentTasks.Pop().Wait();
-                    log.Debug("Pop -1 task.");
+                    if ( entry.Value != null )
+                    {
+                        entry.Value.Cancel();
+                    }
                 }
+                cancs.Clear();
             }
         }
 
+        private void Dequeue(Task tsk)
+        {
+            lock (currentTasks)
+            {
+                if (cancs.ContainsKey(tsk))
+                {
+                    cancs.Remove(tsk);
+                }
+            }
+        }
         public CancellationTokenSource schedule(Action task, long delayInMillis)
         {
-            var ts = new CancellationTokenSource();
-            CancellationToken ct = ts.Token;
+            var source = new CancellationTokenSource();
+            CancellationToken ct = source.Token;
             lock (currentTasks)
             {
                 Task tsk_p = Task.Factory.StartNew(async (obj) =>
@@ -58,15 +83,21 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
                     }
                     else
                     {
-                        await Task.Run(task);
+                        // await Task.Run(task);
+                        executor.execute(task);
                     }
 
                 }, ct);
+                cancs[tsk_p] = source;
+                tsk_p.ContinueWith((antecedent, fu) =>
+                {
+                    this.Dequeue(tsk_p);
+                }, this);
                 // currentTasks.Push(tsk_p);
                 // log.Debug("Push +1 task.");
             }
 
-            return ts;
+            return source;
         }
     }
 }

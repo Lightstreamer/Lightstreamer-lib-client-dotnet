@@ -301,6 +301,8 @@ namespace com.lightstreamer.client.session
 
                 if (this.session != null)
                 {
+                    log.Debug("Closing the session.");
+
                     this.session.closeSession(fromAPI ? "api" : reason, false, noRecoveryScheduled);
                 }
             }
@@ -918,7 +920,11 @@ namespace com.lightstreamer.client.session
 
                 this.prepareNewSessionInstance(isPolling, forced, isHTTP, this.session, retryAgainIfStreamFails, true);
 
-                this.session.recoverSession();
+                if (this.session != null)
+                {
+                    this.session.recoverSession();
+                }
+                
             }
             catch (Exception e)
             {

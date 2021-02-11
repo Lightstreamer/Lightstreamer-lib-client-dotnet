@@ -29,36 +29,7 @@ namespace com.lightstreamer.client.requests
              * The retransmission timeout should not be changed in normal conditions.
              * It was introduced for the sake of cascading clustering applications.
              */
-            // MIN_TIMEOUT = Long.getLong("com.lightstreamer.retransmission.timeout", 4_000);
-            try
-            {
-                System.Collections.Specialized.NameValueCollection appSettings = ConfigurationManager.AppSettings;
-                string timeoutConf = appSettings["com.lightstreamer.retransmission.timeout"];
-                if (timeoutConf != null)
-                {
-                    try
-                    {
-                        MIN_TIMEOUT = int.Parse(timeoutConf);
-                        if (MIN_TIMEOUT < 0)
-                        {
-                            MIN_TIMEOUT = 0;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        MIN_TIMEOUT = 4000;
-                    }
-                }
-                else
-                {
-                    MIN_TIMEOUT = 4000;
-                }
-            }
-            catch (Exception e)
-            {
-                log.Warn("Something wrong in app settings: " + e.Message);
-                MIN_TIMEOUT = 4000;
-            }
+            MIN_TIMEOUT = 4000;
         }
 
         protected internal long timeoutMs;

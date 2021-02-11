@@ -113,6 +113,10 @@ namespace com.lightstreamer.client.protocol
 
         public override void stop(bool waitPendingControlRequests, bool forceConnectionClose)
         {
+
+
+            log.Info("Stop Protocol");
+
             base.stop(waitPendingControlRequests, forceConnectionClose);
             httpRequestManager.close(waitPendingControlRequests);
             wsRequestManager.close(waitPendingControlRequests);

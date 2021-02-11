@@ -1,5 +1,5 @@
-﻿using Akka.Util;
-using com.lightstreamer.util.threads;
+﻿using com.lightstreamer.util.threads;
+using DotNetty.Common.Utilities;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
 using System.Collections.Concurrent;
@@ -79,7 +79,7 @@ namespace com.lightstreamer.client.session
             else
             {
                 // In case of iOS client, no ThreadShutdownHook is provided
-                log.Warn("No HTTP Shutdown Hook provided");
+                log.Info("No HTTP Shutdown Hook provided");
             }
             /* close WebSocket provider */
             ThreadShutdownHook wsHook = wsShutdownHookReference.Value;
@@ -89,7 +89,7 @@ namespace com.lightstreamer.client.session
             }
             else
             {
-                log.Warn("No WebSocket Shutdown Hook provided");
+                log.Info("No WebSocket Shutdown Hook provided");
             }
         }
 

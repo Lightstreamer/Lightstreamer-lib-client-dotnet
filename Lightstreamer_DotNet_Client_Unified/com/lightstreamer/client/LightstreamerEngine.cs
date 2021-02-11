@@ -113,8 +113,9 @@ namespace com.lightstreamer.client
 
             sessionThread.queue(new Task(() =>
             {
-                 log.Debug("Closing a new session and stopping automatic reconnections");
-                 sessionManager.closeSession(FROM_API, "api", NO_RECOVERY);
+                log.Debug("Closing a new session and stopping automatic reconnections");
+
+                sessionManager.closeSession(FROM_API, "api", NO_RECOVERY);
             }));
         }
 

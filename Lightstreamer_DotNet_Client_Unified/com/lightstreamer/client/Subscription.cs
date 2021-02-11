@@ -1972,7 +1972,10 @@ namespace com.lightstreamer.client
                 return;
             }
 
-            this.snapshotByItem[item].update();
+            if (this.snapshotByItem[item] != null)
+            {
+                this.snapshotByItem[item].update();
+            }
 
             SortedSet<int> changedFields = this.prepareChangedSet(args);
 

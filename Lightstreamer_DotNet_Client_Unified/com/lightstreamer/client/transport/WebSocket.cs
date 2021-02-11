@@ -142,6 +142,9 @@ namespace com.lightstreamer.client.transport
         public virtual void close()
         {
             // Debug.Assert(Assertions.SessionThread);
+
+            log.Info("Closing wsc ");
+
             sessionListener.close();
             wsClient.disconnect();
         }
@@ -223,7 +226,7 @@ namespace com.lightstreamer.client.transport
                {
                    if (state.Equals(InternalState.DISCONNECTED))
                    {
-                       log.Warn("onMessage event discarded: " + frame);
+                       log.Debug("onMessage event discarded: " + frame);
                        return;
                    }
                    streamListener.onMessage(frame);

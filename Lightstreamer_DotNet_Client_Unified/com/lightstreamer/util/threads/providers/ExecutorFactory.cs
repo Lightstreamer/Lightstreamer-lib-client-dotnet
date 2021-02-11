@@ -106,5 +106,10 @@ namespace com.lightstreamer.util.threads.providers
         {
             return new CSJoinableScheduler(threadName, keepAliveTime); ;
         }
+
+        public virtual JoinableScheduler getScheduledExecutor(int nThreads, string threadName, long keepAliveTime, JoinableExecutor executor)
+        {
+            return new CSJoinableScheduler(threadName, keepAliveTime, executor); ;
+        }
     }
 }

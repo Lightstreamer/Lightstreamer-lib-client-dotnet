@@ -45,9 +45,10 @@ namespace com.lightstreamer.client.transport.providers.netty
 
             try
             {
-                System.Collections.Specialized.NameValueCollection appSettings = ConfigurationManager.AppSettings;
-                string socketpooling = appSettings["com.lightstreamer.socket.pooling"];
+                // System.Collections.Specialized.NameValueCollection appSettings = ConfigurationManager.AppSettings;
+                // string socketpooling = appSettings["com.lightstreamer.socket.pooling"];
 
+                string socketpooling = "true"; ;
                 if ("false".Equals(socketpooling) || "".Equals(socketpooling))
                 {
                     log.Warn("Socket pooling is disabled");

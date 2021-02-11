@@ -1,4 +1,5 @@
 ﻿using DotNetty.Common;
+using DotNetty.Common.Utilities;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Pool;
@@ -27,7 +28,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 
         private static readonly ILogger log = LogManager.GetLogger(Constants.NETTY_POOL_LOG);
 
-        private Akka.Util.AtomicReference<ChannelPoolMapWrapper> poolMapRef;
+        private AtomicReference<ChannelPoolMapWrapper> poolMapRef;
 
         private int nioThreadCounter = 0;
 
@@ -35,7 +36,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 
         public HttpPoolManager()
         {
-            poolMapRef = new Akka.Util.AtomicReference<ChannelPoolMapWrapper>();
+            poolMapRef = new AtomicReference<ChannelPoolMapWrapper>();
         }
 
         /// <summary>

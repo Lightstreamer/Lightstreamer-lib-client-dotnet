@@ -571,7 +571,6 @@ namespace com.lightstreamer.client.session
 
         protected void closeSession(String closeReason, bool alreadyClosedOnServer, bool noRecoveryScheduled, bool forceConnectionClose)
         {
-        
             log.Info("Closing session " + closeReason);
 
             if (this.Open)
@@ -1175,18 +1174,6 @@ namespace com.lightstreamer.client.session
 
             public virtual void onTakeover(int specificCode)
             {
-                if (specificCode == 41)
-                {
-                    //this is a nasty android browser bug, that causes a POST to be lost and another one to be reissued 
-                    //under certain circumstances (https is fundamental for the issue to appear).
-                    //seen on Android: see mail thread with PartyGaming around the 13/12/2010 for further details. 
-
-                    //this is also a Sony-Bravia TV Opera bug, that causes frame-made requests to be reissued when the frame changes again
-                    //sometimes the correct answer reach the client, others the wrong one carrying error 41 does
-                    //seen on Opera on bravia TV: see mail thread with Cell-Data around 15/10/2011 for further details.  
-
-                    //NOTE at the time of coding this has never happened on the unified Java client
-                }
                 onErrorEvent("error" + specificCode, CLOSED_ON_SERVER, false, false, false);
             }
 
@@ -1589,10 +1576,18 @@ namespace com.lightstreamer.client.session
             internal virtual void onErrorEvent(string reason, bool closedOnServer, bool unableToOpen, bool tryRecovery, bool wsError)
             {
                 long timeLeftMs = outerInstance.recoveryBean.timeLeftMs(outerInstance.options.SessionRecoveryTimeout);
-                outerInstance.log.Error("Error event while " + outerInstance.phase + " reason: " + reason + " tryRecovery=" + tryRecovery + " timeLeft=" + timeLeftMs + " closedOnServer=" + closedOnServer + " unableToOpen=" + unableToOpen + " wsError=" + wsError);
-                bool startRecovery = tryRecovery && timeLeftMs > 0;
+                if (outerInstance.@is(OFF))
+                {
+                    return;
+                }
+                else
+                {
+                    outerInstance.log.Error("Error event while " + outerInstance.phase + " reason: " + reason + " tryRecovery=" + tryRecovery + " timeLeft=" + timeLeftMs + " closedOnServer=" + closedOnServer + " unableToOpen=" + unableToOpen + " wsError=" + wsError);
+                    bool startRecovery = tryRecovery && timeLeftMs > 0;
 
-                outerInstance.doOnErrorEvent(reason, closedOnServer, unableToOpen, startRecovery, timeLeftMs, wsError);
+                    outerInstance.doOnErrorEvent(reason, closedOnServer, unableToOpen, startRecovery, timeLeftMs, wsError);
+                }
+                
             }
 
             internal virtual void doPause(long serverSentPause)
