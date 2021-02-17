@@ -71,35 +71,43 @@ namespace com.lightstreamer.client.transport.providers.netty
             int port = LsUtils.port(uri);
             bool secure = LsUtils.isSSL(uri);
 
-            string host4Netty = System.Net.Dns.GetHostAddresses(host)[0].ToString();
-
-            NettyFullAddress remoteAddress = new NettyFullAddress(secure, host4Netty, port, host, proxy);
-            ExtendedNettyFullAddress extendedRemoteAddress = new ExtendedNettyFullAddress(remoteAddress, extraHeaders, cookies);
-
-            WebSocketChannelPool wsPool = (WebSocketChannelPool)wsPoolManager.get(extendedRemoteAddress);
-
-            IChannel ch = await wsPool.AcquireNewOr(timeout);
-
-            if (ch != null)
+            try
             {
-                if (ch.Active)
+                string host4Netty = System.Net.Dns.GetHostAddresses(host)[0].ToString();
+
+                NettyFullAddress remoteAddress = new NettyFullAddress(secure, host4Netty, port, host, proxy);
+                ExtendedNettyFullAddress extendedRemoteAddress = new ExtendedNettyFullAddress(remoteAddress, extraHeaders, cookies);
+
+                WebSocketChannelPool wsPool = (WebSocketChannelPool)wsPoolManager.get(extendedRemoteAddress);
+
+                IChannel ch = await wsPool.AcquireNewOr(timeout);
+
+                if (ch != null)
                 {
-                    this.channel = new MyChannel(ch, wsPool, networkListener);
-                    WebSocketChannelHandler chHandler = new WebSocketChannelHandler(networkListener, channel);
-                    PipelineUtils.populateWSPipeline(ch, chHandler);
-                    networkListener.onOpen();
+                    if (ch.Active)
+                    {
+                        this.channel = new MyChannel(ch, wsPool, networkListener);
+                        WebSocketChannelHandler chHandler = new WebSocketChannelHandler(networkListener, channel);
+                        PipelineUtils.populateWSPipeline(ch, chHandler);
+                        networkListener.onOpen();
+                    }
+                    else
+                    {
+                        log.Error("WebSocket handshake error, ");
+                        networkListener.onBroken();
+                    }
                 }
                 else
                 {
-                    log.Error("WebSocket handshake error");
+                    log.Error("WebSocket handshake error, channel unexpectedly null");
                     networkListener.onBroken();
                 }
-            }
-            else
+            } catch (Exception e)
             {
-                log.Error("WebSocket handshake error");
+                log.Error("WebSocket handshake error: " + e.Message);
                 networkListener.onBroken();
             }
+            
         }
 
         public virtual void send(string message, RequestListener listener)

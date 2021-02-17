@@ -79,17 +79,17 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
         {
             lock (this)
             {
-                log.Debug("Executor count (pre-join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
+                log.Info("Executor count (pre-join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
                 if (currentTasks.Count > 0)
                 {
                     Task waitfor;
                     currentTasks.TryDequeue(out waitfor);
                     if (waitfor != null)
                     {
-                        Task.WhenAny(waitfor, Task.Delay(1500)).Wait();
+                        Task.WhenAny(waitfor, Task.Delay(150)).Wait();
                         if (!waitfor.IsCompleted)
                         {
-                            log.Info("Task not completed before Disconnection end: " + waitfor.Id);
+                            log.Debug("Task not completed before Disconnection end: " + waitfor.Id);
                         }
                     }
 
@@ -99,16 +99,16 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
                         if (waitfor != null)
                         {
                             waitfor.Start();
-                            Task.WhenAny(waitfor, Task.Delay(1500)).Wait();
+                            Task.WhenAny(waitfor, Task.Delay(150)).Wait();
                             if (!waitfor.IsCompleted)
                             {
-                                log.Info("Task not completed before Disconnection end: " + waitfor.Id);
+                                log.Debug("Task not completed before Disconnection end: " + waitfor.Id);
                             }
                         }
                     }
                 }
                 
-                log.Debug("Executor count (post join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
+                log.Info("Executor count (post join): " + currentTasks.Count + ", " + currentTasks.GetHashCode());
             }   
         }
 

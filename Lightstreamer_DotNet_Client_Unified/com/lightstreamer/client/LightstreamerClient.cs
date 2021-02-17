@@ -322,19 +322,19 @@ namespace com.lightstreamer.client
         }
 
         /// <summary>
-        /// Works just like {@link LightstreamerClient#disconnect()}, but also returns 
-        /// a {@link Task} which will be completed
-        /// when all involved threads started by all {@link LightstreamerClient}
+        /// Works just like <seealso cref="LightstreamerClient.disconnect()"/>, but also returns 
+        /// a  <seealso cref="Task"/> which will be completed
+        /// when all involved threads started by all <seealso cref="LightstreamerClient"/>
         /// instances have been terminated, because no more activities
         /// need to be managed and hence event dispatching is no longer necessary.
-        /// Such method is especially useful in those environments which require 
-        /// an appropriate resource management. The method should be used in replacement
-        /// of disconnect() in all those circumstances where it is indispensable to 
-        /// guarantee a complete shutdown of all user tasks, in order to avoid 
-        /// potential memory leaks and waste resources.
+        /// Such a method is especially useful in those environments which require appropriate
+        /// resource management. The method should be used in replacement
+        /// of <seealso cref="LightstreamerClient.disconnect()"/> in all those circumstances 
+        /// where it is indispensable to guarantee a complete shutdown of all user tasks, 
+        /// in order to avoid potential memory leaks and waste resources.
         /// </summary>
         /// <returns> A Task that will be completed when all the activities launched by
-        /// all {@link LightstreamerClient} instances are terminated.
+        /// all  <seealso cref="LightstreamerClient"/> instances are terminated.
         /// </returns>
         /// <seealso cref="disconnect" />
         public Task DisconnectFuture() 
@@ -351,7 +351,7 @@ namespace com.lightstreamer.client
                 log.Info("DisconnectFuture end.");
             };
             Task t1 = new Task(action);
-            t1.Start();
+            sessionThread.schedule(t1, 50);
 
             return t1;
         }

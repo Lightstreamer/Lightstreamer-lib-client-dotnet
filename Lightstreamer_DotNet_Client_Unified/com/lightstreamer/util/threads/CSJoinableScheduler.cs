@@ -42,7 +42,7 @@ namespace Lightstreamer_DotNet_Client_Unified.com.lightstreamer.util.threads
         {
             lock (currentTasks)
             {
-                log.Debug("Scheduler count: " + cancs.Count + ", " + cancs.GetHashCode());
+                log.Info("Scheduler count: " + cancs.Count + ", " + cancs.GetHashCode());
 
                 foreach (KeyValuePair<Task, CancellationTokenSource> entry in cancs)
                 {
