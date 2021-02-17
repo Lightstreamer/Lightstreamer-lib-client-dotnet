@@ -1,5 +1,38 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.0] (17-02-2021)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+*Compatible with code developed with the previous version.*
+*If running Lightstreamer Server with a license of "file" type a license upgrade could be needed.*
+
+**New Features**
+
+- Added the new method DisconnectFuture to the LigtstreamerClient class, with the purpose to provide a notification when all tasks started by all LightstreamerClient instances have been terminated, because no more activities need to be managed and hence event dispatching is no longer necessary.
+Such method is especially useful in those environments which require an appropriate resource management. The method should be used in replacement of disconnect() in all those circumstances where it is indispensable to guarantee a complete shutdown of all user tasks, in order to avoid potential memory leaks and waste resources.
+See the docs for further details about the proper usage pattern for this method.
+
+**Improvements**
+
+- Discontinued a notification to the Server of the termination of a HTTP streaming session.
+The notification could help the Server to detect closed connections in some cases, but in other cases it could give rise to bursts of new connections.
+
+- Removed the following dependencies:
+	- Akka
+	- System.Configuration.ConfigurationManager
+
+- Optimized reverse heartbeat in case of HTTP streaming transport.
+
+**Bug Fixes**
+
+- Fixed a bug affecting the ItemUpdate.isSnapshot method. In case of a subscription of multiple items with a single Subscription object, 
+the method returned true only for the first snapshot received. After that, the method returned false even when the updates were indeed snapshots.
+
+- Fixed a bug on connection reuse that, under particular conditions, could have caused some connection attempts to fail.
+
+- Fixed a bug that in rare circumstances could lead to an unmanaged exception when processing the unsubscribe request.
+
+
 ## [5.0.5] (16-06-2020)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
