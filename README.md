@@ -18,7 +18,7 @@ client.connect();
 
 In order to receive real-time updates from the Lightstreamer server the client needs to subscribe to specific Items handled by a Data Adapter deployed at the server-side.
 This can be accomplished by instantiating an object of type [Subscription](https://lightstreamer.com/api/ls-dotnetstandard-client/latest/api/com.lightstreamer.client.Subscription.html).
-For more details about Subscription in Lightstreamer see the section 3.2 of the [Lightstreamer General Concepts](https://www.lightstreamer.com/docs/ls-server/latest/General%20Concepts.pdf)) documentation.
+For more details about Subscription in Lightstreamer see the section 3.2 of the [Lightstreamer General Concepts](https://www.lightstreamer.com/docs/base/General%20Concepts.pdf)) documentation.
 An axample of subsctiption of three Items of the classic Stock-List example is:
 
 ```
@@ -117,7 +117,6 @@ To build the library, follow below steps:
 2. Remove auto created class.cs source file
 3. Add all the existing resources contained in the `Lightstreamer_DotNet_Client_Unified` folder
 4. Add NuGet references for:
-	- Akka
 	- CookieManager
 	- DotNetty.Buffers
 	- DotNetty.Codecs.Http
@@ -126,7 +125,6 @@ To build the library, follow below steps:
 	- DotNetty.Handlers
 	- DotNetty.Transport
 	- System.Collections.Immutable
-	- System.Configuration.ConfigurationManager
 	- System.Management
 
 5. Build the project
