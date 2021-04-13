@@ -92,6 +92,7 @@ namespace com.lightstreamer.client.transport
                 uri = new Uri(serverAddress + "lightstreamer");
 
                 string cookies = CookieHelper.getCookieHeader(uri);
+                log.Info("Requested cookies for uri " + uri + ": " + cookies);
                 wsClient.connect(uri.ToString(), sessionListener, options.HttpExtraHeadersOnSessionCreationOnly ? null : options.HttpExtraHeaders, cookies, options.Proxy, options.RetryDelay);
                 sessionListener.state = InternalState.CONNECTING;
             }

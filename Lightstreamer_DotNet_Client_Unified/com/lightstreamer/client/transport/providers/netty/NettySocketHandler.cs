@@ -304,10 +304,12 @@ namespace com.lightstreamer.client.transport.providers.netty
                     }
 
                     keepalive = HttpUtil.IsKeepAlive(response);
-
+                   
                     foreach (string cookie in response.Headers.GetAllAsString(HttpHeaderNames.SetCookie))
                     {
-                        CookieHelper.saveCookies(uri, cookie);
+                        Uri uu = new Uri(uri.Scheme + "://" + uri.Host + ":" + uri.Port + uri.Segments[0] + uri.Segments[1].TrimEnd('/'));
+                        log.Info("SetCookie received for uri " + uu + ": " + cookie);
+                        CookieHelper.saveCookies(uu, cookie);
                     }
 
                 }

@@ -497,10 +497,12 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                     {
                         log.Info("WS upgrade error: " + e.Message);
                     }
-                    
+
                     /* save cookies */
+                    
                     foreach (string cookie in resp.Headers.GetAllAsString(HttpHeaderNames.SetCookie))
                     {
+                        log.Info("SetCookie received for uri " + handshaker.Uri + ": " + cookie);
                         CookieHelper.saveCookies(handshaker.Uri, cookie);
                     }
 

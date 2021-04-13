@@ -120,6 +120,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             httpRequest.Headers.Set(HttpHeaderNames.Host, uri.Host);
 
             string cookies = CookieHelper.getCookieHeader(uri);
+            log.Info("Requested cookies for uri " + uri + ": " + cookies);
             if (!string.ReferenceEquals(cookies, null) && cookies.Length > 0)
             {
                 httpRequest.Headers.Set(HttpHeaderNames.Cookie, cookies);

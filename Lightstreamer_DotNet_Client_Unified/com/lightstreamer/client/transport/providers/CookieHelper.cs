@@ -2,6 +2,7 @@
 using Lightstreamer.DotNet.Logging.Log;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 /*
@@ -22,9 +23,13 @@ namespace com.lightstreamer.client.transport.providers
 
         private static readonly ILogger log = LogManager.GetLogger(Constants.UTILS_LOG);
 
+        private static CookieContainer cookieHandler = new CookieContainer();
+
+        private static IList<HttpCookie> custom_cookies = null;
+
         private static void logCookies(string message, IList<HttpCookie> cookies)
         {
-            // usato solo in caso di debug
+            
             foreach (HttpCookie cookie in cookies)
             {
                 message += ( "\r\n    " + cookie.ToString() );
@@ -37,24 +42,37 @@ namespace com.lightstreamer.client.transport.providers
 
         public static void addCookies(Uri uri, IList<HttpCookie> cookies)
         {
+            if (cookies == null)
+            {
+                log.Warn("Receive null reference for the cookies list to add.");
+                return;
+            }
             lock (typeof(CookieHelper))
             {
-
-                ICookieManager store = new DefaultCookieManager(null);
+                custom_cookies = cookies;
 
                 if (log.IsDebugEnabled)
                 {
-                    //logCookies("Before adding cookies for " + uri, store.Cookies);
+                    log.Debug("Before adding cookies for " + uri + ": " + cookieHandler.GetCookieHeader(uri));
                     logCookies("Cookies to be added for " + uri, cookies);
                 }
                 foreach (HttpCookie cookie in cookies)
                 {
-
-                    store.Set(uri.ToString(), cookie);
+                    string tmpcookie = "";
+                    foreach (string keyy in cookie.Keys)
+                    {
+                        tmpcookie += keyy;
+                        tmpcookie += "=";
+                        tmpcookie += cookie.Get(keyy);
+                        tmpcookie += "; ";
+                    }
+                    
+                    /// store.Set(uri.ToString(), cookie);
+                    cookieHandler.SetCookies(uri, tmpcookie);
                 }
                 if (log.IsDebugEnabled)
                 {
-                    //logCookies("After adding cookies for " + uri, store.Cookies);
+                    log.Debug("After adding cookies for " + uri + ": " + cookieHandler.GetCookieHeader(uri));
                 }
 
             }
@@ -66,53 +84,54 @@ namespace com.lightstreamer.client.transport.providers
         {
 
             lock (typeof(CookieHelper))
-            { 
-                //
+            {
+                if (custom_cookies != null)
+                {
+                    return custom_cookies;
+                }
             }
             return emptyCookieList;
         }
 
         public static string getCookieHeader(Uri target)
         {
-            IList<HttpCookie> cookieList = getCookies(target);
-            if (cookieList.Count > 0)
-            {
+            //IList<HttpCookie> cookieList = getCookies(target);
+            //if (cookieList.Count > 0)
+            //{
 
-                StringBuilder headerValue = new StringBuilder();
+            //    StringBuilder headerValue = new StringBuilder();
 
-                for (IEnumerator<HttpCookie> iter = cookieList.GetEnumerator(); iter.MoveNext();)
-                {
-                    if (headerValue.Length != 0)
-                    {
-                        headerValue.Append("; ");
-                    }
-                    HttpCookie cookie = iter.Current;
-                    headerValue.Append(cookie.ToString()); //cookie toString generates the correct cookie value
-                }
+            //    for (IEnumerator<HttpCookie> iter = cookieList.GetEnumerator(); iter.MoveNext();)
+            //    {
+            //        if (headerValue.Length != 0)
+            //        {
+            //            headerValue.Append("; ");
+            //        }
+            //        HttpCookie cookie = iter.Current;
+            //        headerValue.Append(cookie.ToString()); //cookie toString generates the correct cookie value
+            //    }
 
-                string header = headerValue.ToString();
-                log.Info("Cookies to be inserted for " + target + ": " + header);
-                return header;
+            //    string header = headerValue.ToString();
+            //    log.Info("Cookies to be inserted for " + target + ": " + header);
+            //    return header;
 
-            }
-            log.Info("Cookies to be inserted for " + target + ": <none>");
-            return null;
+            //}
+            //log.Info("Cookies to be inserted for " + target + ": <none>");
+            //return null;
+            return cookieHandler.GetCookieHeader(target);
         }
 
         public static void saveCookies(Uri uri, string cookieString)
         {
-            //
+            if (cookieString == null)
+            {
+                log.Info("Cookies to be saved for " + uri + ": <none>");
+                return;
+            }
+            log.Info("Cookies to be saved for " + uri + ": " + cookieString);
+
+            cookieHandler.SetCookies(uri, cookieString);
         }
-
-        /// <summary>
-        /// Private cookie handler used when there is no global handler available (see <seealso cref="CookieHandler#setDefault(CookieHandler)"/>).
-        /// </summary>
-        private static ICookieManager cookieHandler;
-
-        /// <summary>
-        /// True if the next call to <seealso cref="CookieHelper#getCookieHandler()"/> will be the first one. False otherwise.
-        /// </summary>
-        private static bool firstTime = true;
 
         /// <summary>
         /// Returns true if the internal CookieManager, to be used
@@ -141,8 +160,7 @@ namespace com.lightstreamer.client.transport.providers
                 {
                     log.Info("Discarding the custom CookieHandler");
                 }
-                cookieHandler = null;
-                firstTime = true;
+                cookieHandler = new CookieContainer();
             }
         }
     }
