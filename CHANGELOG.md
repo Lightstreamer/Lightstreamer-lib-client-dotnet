@@ -7,7 +7,7 @@
 
 **Bug Fixes**
 
-- Fixed a bug in the cookies management that could prevent the content of Set-Cookie header received by the server to be automatically reported in subsequent requests for the same URI..
+- Fixed a bug in the cookies management that could prevent the content of Set-Cookie header received by the server to be automatically reported in subsequent requests for the same URI.
 
 - Fixed a bug on Websocket transport that could have caused the client to trigger the listener ClientListener.onServerError with error code 61.
 
