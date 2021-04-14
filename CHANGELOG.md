@@ -1,5 +1,16 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+
+## [5.1.1] (to be released)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Bug Fixes**
+
+- Fixed a bug in the cookies management that could prevent the content of Set-Cookie header received by the server to be automatically reported in subsequent requests for the same URI..
+
+- Fixed a bug on Websocket transport that could have caused the client to trigger the listener ClientListener.onServerError with error code 61.
+
 ## [5.1.0] (17-02-2021)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
