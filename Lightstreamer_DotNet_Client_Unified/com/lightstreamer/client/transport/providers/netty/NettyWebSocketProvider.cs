@@ -370,9 +370,12 @@ namespace com.lightstreamer.client.transport.providers.netty
                 listener.onMessage(message);
                 MatchCollection mLoop = TextProtocol.LOOP_REGEX.Matches(message);
                 MatchCollection mEnd = TextProtocol.END_REGEX.Matches(message);
-                if (( mLoop.Count > 0 ) || ( mEnd.Count > 0 ))
+                if ( mLoop.Count > 0 )
                 {
                     ch.release();
+                } else if (mEnd.Count > 0)
+                {
+                    ch.close();
                 }
             }
 

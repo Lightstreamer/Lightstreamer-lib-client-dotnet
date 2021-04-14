@@ -131,6 +131,7 @@ namespace com.lightstreamer.client.protocol
 
                     default:
                         // Debug.Assert(false, state);
+                        sessionLog.Warn("Unexpected bind request in state " + state);
                         break;
                 }
             }
@@ -175,7 +176,8 @@ namespace com.lightstreamer.client.protocol
             else
             {
                 // there is a transport, so openSocket was already called: the state is CONNECTED or CONNECTING 
-                switch (wsTransport.State)
+                InternalState state = wsTransport.State;
+                switch (state)
                 {
                     case InternalState.CONNECTED:
                         sendControlRequest(request, reqListener, tutor);
@@ -187,7 +189,8 @@ namespace com.lightstreamer.client.protocol
                         break;
 
                     default:
-                        Debug.Assert(false);
+                        // Debug.Assert(false);
+                        sessionLog.Warn("Unexpected request " + request.RequestName + " in state " + state);
                         break;
                 }
             }
