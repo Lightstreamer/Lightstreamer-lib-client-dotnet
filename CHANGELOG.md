@@ -1,7 +1,7 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
 
-## [5.1.1] (to be released)
+## [5.1.1] (10-08-2021)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
 

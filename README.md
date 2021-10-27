@@ -4,7 +4,7 @@ Lightstreamer .NET Standard Client SDK enables any application which supports Mi
 The API allows to subscribe to real-time data pushed by a Lightstreamer server and to send any message to the server.
 
 The library offers automatic recovery from connection failures, automatic selection of the best available transport, and full decoupling of subscription and connection operations.
-It is responsible of forwarding the subscriptions to the Server and re-forwarding all the subscriptions whenever the connection is broken and then reopened.
+It is responsible of forwarding the subscriptions to the server and re-forwarding all the subscriptions whenever the connection is broken and then reopened.
 
 ## Quickstart
 
@@ -19,7 +19,7 @@ client.connect();
 In order to receive real-time updates from the Lightstreamer server the client needs to subscribe to specific Items handled by a Data Adapter deployed at the server-side.
 This can be accomplished by instantiating an object of type [Subscription](https://lightstreamer.com/api/ls-dotnetstandard-client/latest/api/com.lightstreamer.client.Subscription.html).
 For more details about Subscription in Lightstreamer see the section 3.2 of the [Lightstreamer General Concepts](https://www.lightstreamer.com/docs/ls-server/latest/General%20Concepts.pdf)) documentation.
-An axample of subsctiption of three Items of the classic Stock-List example is:
+A sample of code that subscribes three Items of the classic Stock-List example is:
 
 ```
 Subscription s_stocks = new Subscription("MERGE");
