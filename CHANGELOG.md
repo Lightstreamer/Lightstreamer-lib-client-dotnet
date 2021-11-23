@@ -1,6 +1,16 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
 
+## [5.1.2] (23-11-2021)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Improvements**
+
+- Replaced Dictionary data structure with ConcurrentDictionary in Matrix management
+
+- Added further detail logs for the client messaging handling
+
 ## [5.1.1] (10-08-2021)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
