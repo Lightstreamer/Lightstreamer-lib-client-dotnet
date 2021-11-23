@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 /*
  * Copyright (c) 2004-2019 Lightstreamer s.r.l., Via Campanini, 6 - 20124 Milano, Italy.
@@ -15,7 +16,7 @@ namespace com.lightstreamer.util
 {
     public class Matrix<R, C, V>
     {
-        private Dictionary<R, Dictionary<C, V>> matrix = new Dictionary<R, Dictionary<C, V>>();
+        private ConcurrentDictionary<R, ConcurrentDictionary<C, V>> matrix = new ConcurrentDictionary<R, ConcurrentDictionary<C, V>>();
 
         /// <summary>
         /// Inserts an element in the matrix. If another element is already present in the
@@ -23,11 +24,11 @@ namespace com.lightstreamer.util
         /// </summary>
         public virtual void insert(V value, R row, C column)
         {
-            Dictionary<C, V> matrixRow;
+            ConcurrentDictionary<C, V> matrixRow;
             bool presente = matrix.TryGetValue(row, out matrixRow);
             if (!presente)
             {
-                matrixRow = new Dictionary<C, V>();
+                matrixRow = new ConcurrentDictionary<C, V>();
                 matrix[row] = matrixRow;
             }
 
@@ -39,7 +40,7 @@ namespace com.lightstreamer.util
         /// </summary>
         public virtual V get(R row, C column)
         {
-            Dictionary<C, V> matrixRow;
+            ConcurrentDictionary<C, V> matrixRow;
             matrix.TryGetValue(row, out matrixRow);
             if (matrixRow != null)
             {
@@ -56,17 +57,19 @@ namespace com.lightstreamer.util
         /// </summary>
         public virtual void del(R row, C column)
         {
-            Dictionary<C, V> matrixRow;
+            ConcurrentDictionary<C, V> matrixRow;
             matrix.TryGetValue(row, out matrixRow);
             if (matrixRow == null)
             {
                 return;
             }
-            matrixRow.Remove(column);
+            V value;
+            matrixRow.TryRemove(column, out value);
             if (matrixRow.Count == 0)
             {
+                ConcurrentDictionary<C, V> removed;
                 //row is empty, get rid of it
-                matrix.Remove(row);
+                matrix.TryRemove(row, out removed);
             }
         }
 
@@ -74,7 +77,7 @@ namespace com.lightstreamer.util
         /// Inserts a full row in the matrix. If another row is already present in the
         /// specified position it is overwritten.
         /// </summary>
-        public virtual void insertRow(Dictionary<C, V> insRow, R row)
+        public virtual void insertRow(ConcurrentDictionary<C, V> insRow, R row)
         {
             matrix[row] = insRow;
         }
@@ -82,9 +85,9 @@ namespace com.lightstreamer.util
         /// <summary>
         /// @deprecated
         /// </summary>
-        public virtual Dictionary<C, V> getRow(R row)
+        public virtual ConcurrentDictionary<C, V> getRow(R row)
         {
-            Dictionary<C, V> rowi;
+            ConcurrentDictionary<C, V> rowi;
             matrix.TryGetValue(row, out rowi);
 
             return rowi;
@@ -95,13 +98,14 @@ namespace com.lightstreamer.util
         /// </summary>
         public virtual void delRow(R row)
         {
-            matrix.Remove(row);
+            ConcurrentDictionary<C, V> rowi;
+            matrix.TryRemove(row, out rowi);
         }
 
         /// <summary>
         /// @deprecated
         /// </summary>
-        public virtual Dictionary<R, Dictionary<C, V>> EntireMatrix
+        public virtual ConcurrentDictionary<R, ConcurrentDictionary<C, V>> EntireMatrix
         {
             get
             {
@@ -118,6 +122,15 @@ namespace com.lightstreamer.util
             {
                 return matrix.Count == 0;
             }
+        }
+
+        /// <summary>
+        /// Return current number of elements in the grid
+        /// </summary>
+        public virtual int Count(R row)
+        {
+
+            return matrix[row].Count;
         }
 
         /// <summary>
@@ -147,7 +160,8 @@ namespace com.lightstreamer.util
                 bool remove = callback.onRow(row, this.matrix[row]);
                 if (remove)
                 {
-                    this.matrix.Remove(row);
+                    ConcurrentDictionary<C, V> rowMap;
+                    this.matrix.TryRemove(row, out rowMap);
                 }
             }
         }
@@ -161,7 +175,7 @@ namespace com.lightstreamer.util
         /// </summary>
         public virtual void forEachElementInRow(R row, ElementCallback<R, C, V> callback)
         {
-            Dictionary<C, V> rowElements;
+            ConcurrentDictionary<C, V> rowElements;
             matrix.TryGetValue(row, out rowElements);
             if (rowElements == null)
             {
@@ -182,7 +196,8 @@ namespace com.lightstreamer.util
 
             if (rowElements.Count == 0)
             {
-                this.matrix.Remove(row);
+                ConcurrentDictionary<C, V> rowMap;
+                this.matrix.TryRemove(row, out rowMap);
             }
         }
 
@@ -193,7 +208,7 @@ namespace com.lightstreamer.util
             SortedSet<R> rows = new SortedSet<R>(this.matrix.Keys);
             foreach (R row in rows)
             {
-                Dictionary<C, V> rowMap;
+                ConcurrentDictionary<C, V> rowMap;
                 matrix.TryGetValue(row, out rowMap);
 
                 SortedSet<C> cols = new SortedSet<C>(rowMap.Keys);
@@ -221,7 +236,7 @@ namespace com.lightstreamer.util
 
         public interface RowCallback<R, C, V>
         {
-            bool onRow(R row, Dictionary<C, V> rowMap);
+            bool onRow(R row, ConcurrentDictionary<C, V> rowMap);
         }
     }
 }

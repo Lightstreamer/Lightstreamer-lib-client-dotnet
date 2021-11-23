@@ -919,7 +919,7 @@ namespace com.lightstreamer.client.protocol
                 // through the <PROG_NOTIFICATION_GAP> private flag
                 if (currentProg.Value != prog)
                 {
-                    onIllegalMessage("Message prog different than expected: " + message);
+                    onIllegalMessage("Message prog different than expected: " + message + " <> " + currentProg.Value);
                 }
                 if (prog != session.DataNotificationProg)
                 {

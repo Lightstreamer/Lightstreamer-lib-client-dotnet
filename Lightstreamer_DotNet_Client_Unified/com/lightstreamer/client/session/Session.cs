@@ -986,6 +986,12 @@ namespace com.lightstreamer.client.session
         {
             request.Server = this.PushServerAddress;
             request.Session = this.sessionId;
+
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("Sending client message request to the server. " + request.RequestId);
+            }
+
             this.protocol.sendMessageRequest(request, tutor);
         }
 

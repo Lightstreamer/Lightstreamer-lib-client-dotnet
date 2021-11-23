@@ -208,17 +208,27 @@ namespace com.lightstreamer.client
 
         private void sendMessage(string message, string sequence, int delayTimeout, ClientMessageListener listener)
         {
-            int number = getNextSequenceNumber(sequence);
-
             if (log.IsDebugEnabled)
             {
-                log.Debug("Preparing message: " + sequence + "|" + number);
+                log.Debug("Acquiring sequence number for the message: " + sequence );
             }
 
+            int number;
+
+            lock (sequences)
+            {
+                number = getNextSequenceNumber(sequence);
+            }
+            
             MessageRequest request = new MessageRequest(message, sequence, number, delayTimeout, listener != null);
 
 
             MessageWrap envelope = new MessageWrap(this, request, message, listener);
+
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("Forwarding message: " + sequence + "|" + number);
+            }
 
             forwardMessage(sequence, number, envelope);
         }
@@ -227,7 +237,13 @@ namespace com.lightstreamer.client
         {
             try
             {
-                forwardedMessages.insert(envelope, envelope.request.Sequence, envelope.request.MessageNumber);
+                lock (forwardedMessages)
+                {
+                    forwardedMessages.insert(envelope, envelope.request.Sequence, envelope.request.MessageNumber);
+                }
+                
+                log.Debug("Matrix Count: " + forwardedMessages.Count(envelope.request.Sequence) + " - " + envelope.request.Sequence + " < " + envelope.request.MessageNumber);
+
             }
             catch (Exception e)
             {
@@ -235,13 +251,24 @@ namespace com.lightstreamer.client
             }
 
             RequestTutor messageTutor = new MessageTutor(this, sessionThread, 0, envelope, phase);
+
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("Sending message: " + sequence + "|" + number);
+            }
+
             manager.sendMessage(envelope.request, messageTutor);
         }
 
 
         private void queueMessage(string message, string sequence, int delayTimeout, ClientMessageListener listener)
         {
-            int number = getNextSequenceNumber(sequence);
+            int number;
+
+            lock (sequences)
+            {
+                number = getNextSequenceNumber(sequence);
+            }
 
             if (log.IsDebugEnabled)
             {
@@ -260,7 +287,10 @@ namespace com.lightstreamer.client
             {
                 log.Debug("Message handled, cleaning structures: " + sequence + "|" + number);
             }
-            forwardedMessages.del(sequence, number);
+            lock (forwardedMessages)
+            {
+                forwardedMessages.del(sequence, number);
+            }
         }
 
         internal virtual void onSent(MessageWrap envelope)
@@ -289,7 +319,11 @@ namespace com.lightstreamer.client
                 log.Debug("Ack received for message: " + sequence + "|" + number);
             }
 
-            MessageWrap envelope = forwardedMessages.get(sequence, number);
+            MessageWrap envelope;
+            lock (forwardedMessages) {
+                envelope = forwardedMessages.get(sequence, number);
+            }
+            
             if (envelope != null)
             {
                 if (envelope.ack)
@@ -314,6 +348,8 @@ namespace com.lightstreamer.client
             {
                 log.Warn("Unexpected pair LS_sequence|LS_msg_prog: " + sequence + "|" + number);
             }
+
+            log.Debug("Matrix Count -3-: " + forwardedMessages.Count(envelope.request.Sequence));
         }
 
         internal virtual void onOk(string sequence, int number)
@@ -323,7 +359,11 @@ namespace com.lightstreamer.client
                 log.Debug("OK received for message: " + sequence + "|" + number);
             }
 
-            MessageWrap envelope = forwardedMessages.get(sequence, number);
+            MessageWrap envelope;
+            lock (forwardedMessages)
+            {
+                envelope = forwardedMessages.get(sequence, number);
+            }
             if (envelope != null)
             {
                 if (envelope.listener != null)
@@ -336,6 +376,8 @@ namespace com.lightstreamer.client
             {
                 log.Warn("Unexpected pair LS_sequence|LS_msg_prog: " + sequence + "|" + number);
             }
+
+            log.Debug("Matrix Count -2-: " + forwardedMessages.Count(envelope.request.Sequence));
         }
 
         internal virtual void onDeny(string sequence, int number, string denyMessage, int code)
@@ -345,7 +387,11 @@ namespace com.lightstreamer.client
                 log.Debug("Denial received for message: " + sequence + "|" + number);
             }
 
-            MessageWrap envelope = forwardedMessages.get(sequence, number);
+            MessageWrap envelope;
+            lock (forwardedMessages)
+            {
+                envelope = forwardedMessages.get(sequence, number);
+            }
             if (envelope != null)
             {
                 if (envelope.listener != null)
@@ -358,6 +404,8 @@ namespace com.lightstreamer.client
             {
                 log.Warn("Unexpected pair LS_sequence|LS_msg_prog: " + sequence + "|" + number);
             }
+
+            log.Debug("Matrix Count -4-: " + forwardedMessages.Count(envelope.request.Sequence));
         }
 
         internal virtual void onDiscarded(string sequence, int number)
@@ -367,7 +415,11 @@ namespace com.lightstreamer.client
                 log.Debug("Discard received for message: " + sequence + "|" + number);
             }
 
-            MessageWrap envelope = forwardedMessages.get(sequence, number);
+            MessageWrap envelope;
+            lock (forwardedMessages)
+            {
+                envelope = forwardedMessages.get(sequence, number);
+            }
             if (envelope != null)
             {
                 if (envelope.listener != null)
@@ -380,6 +432,8 @@ namespace com.lightstreamer.client
             {
                 log.Warn("Unexpected pair LS_sequence|LS_msg_prog: " + sequence + "|" + number);
             }
+
+            log.Debug("Matrix Count -5-: " + forwardedMessages.Count(envelope.request.Sequence));
         }
 
         internal virtual void onError(string sequence, int number, string errorMessage, int code)
@@ -389,7 +443,11 @@ namespace com.lightstreamer.client
                 log.Debug("Error received for message: " + sequence + "|" + number);
             }
 
-            MessageWrap envelope = forwardedMessages.get(sequence, number);
+            MessageWrap envelope;
+            lock (forwardedMessages)
+            {
+                envelope = forwardedMessages.get(sequence, number);
+            }
             // envelope may not be in forwardedMessages because it has been removed (for example when LS_ack=false)
             if (envelope != null)
             {
@@ -408,6 +466,8 @@ namespace com.lightstreamer.client
             {
                 log.Warn("Unexpected pair LS_sequence|LS_msg_prog: " + sequence + "|" + number);
             }
+
+            log.Debug("Matrix Count -6-: " + forwardedMessages.Count(envelope.request.Sequence));
         }
 
         private void reset()
@@ -446,13 +506,16 @@ namespace com.lightstreamer.client
             // called at session end: we have to call abort on all the messages we had no answer for
 
             // we have to call the listeners in the proper order (within each sequence)
-            IList<MessageWrap> forwarded = messages.sortAndCleanMatrix();
-
-            foreach (MessageWrap envelope in forwarded)
+            lock (messages)
             {
-                if (envelope.listener != null)
+                IList<MessageWrap> forwarded = messages.sortAndCleanMatrix();
+
+                foreach (MessageWrap envelope in forwarded)
                 {
-                    dispatcher.dispatchSingleEvent(new ClientMessageAbortEvent(envelope.message, envelope.sentOnNetwork), envelope.listener);
+                    if (envelope.listener != null)
+                    {
+                        dispatcher.dispatchSingleEvent(new ClientMessageAbortEvent(envelope.message, envelope.sentOnNetwork), envelope.listener);
+                    }
                 }
             }
         }

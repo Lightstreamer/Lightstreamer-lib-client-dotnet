@@ -162,9 +162,12 @@ namespace com.lightstreamer.client.protocol
                 /*
 				 * for numbered requests (i.e. having a LS_reqId) the client expects a REQOK/REQERR notification from the server 
 				 */
+
                 NumberedRequest numberedReq = (NumberedRequest)request;
                 Debug.Assert(!pendingRequestMap.ContainsKey(numberedReq.RequestId));
                 pendingRequestMap[numberedReq.RequestId] = reqListener;
+
+                sessionLog.Debug("Pending request - post - " + numberedReq.RequestId);
             }
             if (wsTransport == null)
             {
@@ -199,6 +202,7 @@ namespace com.lightstreamer.client.protocol
         private void sendControlRequest(LightstreamerRequest request, RequestListener reqListener, RequestTutor tutor)
         {
             ongoingRequest = new PendingRequest(request, reqListener, tutor);
+
             wsTransport.sendRequest(protocol, request, new ListenerWrapperAnonymousInnerClass(this, reqListener)
            , null, null, 0, 0);
         }
