@@ -149,7 +149,6 @@ namespace com.lightstreamer.client.transport.providers.netty
 
             if (this.socketListener != null)
             {
-
                 log.Debug("Reuse failed for " + ctx.Channel.Id);
 
                 this.socketListener.onClosed();

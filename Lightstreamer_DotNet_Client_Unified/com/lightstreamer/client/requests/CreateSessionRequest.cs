@@ -44,7 +44,7 @@ namespace com.lightstreamer.client.requests
             this.addParameter("LS_polling_millis", requestedPollingInterval);
             this.addParameter("LS_idle_millis", requestedIdleTimeout);
 
-            this.addParameter("LS_cid", "jqWtj1twChtfDxikwp1ltvcB4CJ6Kj uWur8vy1sj.hm");
+            this.addParameter("LS_cid", "jqWtj1twChtfDxikwp1ltvcB4CJ7Kj uWur8vy1sj.io");
 
             if (options.InternalMaxBandwidth == 0)
             {

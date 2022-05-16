@@ -1,5 +1,6 @@
 ﻿using Lightstreamer.DotNet.Logging.Log;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 /*
@@ -36,7 +37,7 @@ namespace com.lightstreamer.client
 
         protected internal readonly ILogger log = LogManager.GetLogger(Constants.SUBSCRIPTIONS_LOG);
 
-        private readonly IDictionary<int, Subscription> subscriptions = new Dictionary<int, Subscription>();
+        private readonly IDictionary<int, Subscription> subscriptions = new ConcurrentDictionary<int, Subscription>();
         /// <summary>
         /// Map recording unsubscription requests which have been sent but whose corresponding REQOK/SUBOK messages 
         /// have not yet been received.
@@ -225,23 +226,63 @@ namespace com.lightstreamer.client
 
         internal virtual void sendAllSubscriptions()
         {
-            //we clone just to avoid unexpected issues as in the pauseAllSubscriptions case
-            //(see comment there for details)
-            Dictionary<int, Subscription> copy = new Dictionary<int, Subscription>(subscriptions);
-
-            foreach (KeyValuePair<int, Subscription> subscriptionPair in copy.SetOfKeyValuePairs())
+            try
             {
-                Subscription subscription = subscriptionPair.Value;
+                //we clone just to avoid unexpected issues as in the pauseAllSubscriptions case
+                //(see comment there for details)
 
-                if (subscription.SubTable)
+                log.Debug("sendAllSubscriptions: " + subscriptions.Count);
+
+                IDictionary<int, Subscription> copy = new ConcurrentDictionary<int, Subscription>(subscriptions);
+
+                foreach (KeyValuePair<int, Subscription> subscriptionPair in copy.SetOfKeyValuePairs())
                 {
-                    log.Error("Second level subscriptions should not be in the list of paused subscriptions");
-                    return;
+                    Subscription subscription = subscriptionPair.Value;
+
+                    log.Debug("sendAllSubscriptions - " + subscriptionPair.Key + " - " + subscriptionPair.Value);
+
+                    if (subscription.SubTable)
+                    {
+                        log.Error("Second level subscriptions should not be in the list of paused subscriptions");
+                        return;
+                    }
+
+                    subscription.onStart(); //wake up
+
+                    subscribe(subscription);
                 }
 
-                subscription.onStart(); //wake up
+                log.Debug("sendAllSubscriptions done! ");
+            } catch (Exception e)
+            {
+                log.Error("SendAllSubscriptions error: " + e.Message);
+                log.Debug(" - ", e);
+                try
+                {
+                    log.Debug("sendAllSubscriptions try recovery.");
 
-                subscribe(subscription);
+                    foreach (KeyValuePair<int, Subscription> subscriptionPair in subscriptions.SetOfKeyValuePairs())
+                    {
+                        Subscription subscription = subscriptionPair.Value;
+
+                        if (subscription.SubTable)
+                        {
+                            log.Error("Second level subscriptions should not be in the list of paused subscriptions");
+                            return;
+                        }
+
+                        subscription.onStart(); //wake up
+
+                        subscribe(subscription);
+                    }
+
+                    log.Debug("sendAllSubscriptions recovery done.");
+
+                } catch (Exception ex)
+                {
+                    log.Error("SendAllSubscriptions recovery try error: " + ex.Message);
+                    log.Debug(" - ", ex);
+                }
             }
         }
 
@@ -256,20 +297,55 @@ namespace com.lightstreamer.client
             //In the second case we should also avoid calling remove on the doRemove 
             //methods. 
             //To avoid complications I chose to go down the clone path.
+            try {
 
-            Dictionary<int, Subscription> copy = new Dictionary<int, Subscription>(subscriptions);
+                log.Debug("pauseAllSubscriptions: " + subscriptions.Count);
 
-            foreach (KeyValuePair<int, Subscription> subscriptionPair in copy.SetOfKeyValuePairs())
-            {
-                Subscription subscription = subscriptionPair.Value;
+                IDictionary<int, Subscription> copy = new ConcurrentDictionary<int, Subscription>(subscriptions);
 
-                if (subscription.SubTable)
+                foreach (KeyValuePair<int, Subscription> subscriptionPair in copy.SetOfKeyValuePairs())
                 {
-                    //no need to pause these, will be removed soon
-                    return;
+                    Subscription subscription = subscriptionPair.Value;
+
+                    if (subscription.SubTable)
+                    {
+                        //no need to pause these, will be removed soon
+                        return;
+                    }
+
+                    subscription.onPause();
                 }
 
-                subscription.onPause();
+                log.Debug("pauseAllSubscriptions done!");
+            } catch (Exception e)
+            {
+                log.Error("pauseAllSubscriptions error: " + e.Message);
+                log.Debug(" - ", e);
+                try
+                {
+                    log.Debug("pauseAllSubscriptions try recovery.");
+
+                    foreach (KeyValuePair<int, Subscription> subscriptionPair in subscriptions.SetOfKeyValuePairs())
+                    {
+                        Subscription subscription = subscriptionPair.Value;
+
+                        if (subscription.SubTable)
+                        {
+                            //no need to pause these, will be removed soon
+                            return;
+                        }
+
+                        subscription.onPause();
+                    }
+
+                    log.Debug("pauseAllSubscriptions recovery done.");
+
+                }
+                catch (Exception ex)
+                {
+                    log.Error("pauseAllSubscriptions recovery try error: " + ex.Message);
+                    log.Debug(" - ", ex);
+                }
             }
         }
 
