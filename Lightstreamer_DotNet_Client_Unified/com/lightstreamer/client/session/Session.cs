@@ -751,7 +751,7 @@ namespace com.lightstreamer.client.session
             {
                 if (this.isPolling)
                 {
-                    this.slowing.testPollSync(usedTimeout, ( DateTime.Now ).Ticks);
+                    this.slowing.testPollSync(usedTimeout, (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond));
                 }
                 this.bindSession("loop");
 
@@ -801,7 +801,7 @@ namespace com.lightstreamer.client.session
 
         protected internal virtual void createSent()
         {
-            this.sentTime = ( DateTime.Now ).Ticks;
+            this.sentTime = ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond );
 
             if (isNot(OFF) && isNot(SLEEP))
             {
@@ -821,7 +821,7 @@ namespace com.lightstreamer.client.session
         protected internal virtual void bindSent()
         {
 
-            this.sentTime = DateTimeHelper.CurrentUnixTimeMillis();
+            this.sentTime = ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond );
 
             if (isNot(PAUSE) && isNot(FIRST_PAUSE))
             {
@@ -946,7 +946,7 @@ namespace com.lightstreamer.client.session
                 else
                 {
 
-                    long spent = DateTimeHelper.CurrentUnixTimeMillis() - this.sentTime;
+                    long spent = ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond ) - this.sentTime;
                     return spent > this.options.PollingInterval ? 0 : this.options.PollingInterval - spent;
                 }
             }
@@ -955,7 +955,7 @@ namespace com.lightstreamer.client.session
 
         private long calculateRetryDelay()
         {
-            long spent = ( DateTime.Now ).Ticks - this.sentTime;
+            long spent = ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - this.sentTime;
             long currentRetryDelay = options.CurrentRetryDelay;
             return spent > currentRetryDelay ? 0 : currentRetryDelay - spent;
         }
@@ -1264,16 +1264,18 @@ namespace com.lightstreamer.client.session
                         return;
                     }
                     /* calculate reconnect timeout, i.e. the actual time we spent to send the request and receive the reponse (the roundtirp) */
-                    long spentTime = ( DateTime.Now ).Ticks - outerInstance.sentTime;
+                    long spentTime = ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond ) - outerInstance.sentTime;
                     //we add to our connectTimeout the spent roundtrip and we'll use that time as next connectCheckTimeout
                     //ok, we wanna give enough time to the client to connect if necessary, but we should not exaggerate :)
                     //[obviously if spentTime can't be > this.policyBean.connectTimeout after the first connection, 
                     //but it may grow connection after connection if we give him too much time]
                     long ct = outerInstance.options.CurrentConnectTimeout;
                     outerInstance.reconnectTimeout = ( spentTime > ct ? ct : spentTime ) + ct;
+
+                    outerInstance.log.Debug("CurrentConnectTimeout: " + outerInstance.reconnectTimeout + ", " + ct + ", " + spentTime);
                 }
 
-                outerInstance.slowing.startSync(outerInstance.isPolling, outerInstance.isForced, ( DateTime.Now ).Ticks);
+                outerInstance.slowing.startSync(outerInstance.isPolling, outerInstance.isForced, ( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond ));
                 onEvent();
 
                 if (outerInstance.@is(CREATED))
@@ -1493,7 +1495,7 @@ namespace com.lightstreamer.client.session
                     outerInstance.log.Debug("Sync event while " + outerInstance.phase);
                 }
 
-                bool syncOk = outerInstance.slowing.syncCheck(seconds, !outerInstance.isPolling, (double)( ( DateTime.Now ).Ticks / TimeSpan.TicksPerMillisecond ));
+                bool syncOk = outerInstance.slowing.syncCheck(seconds, !outerInstance.isPolling, (double)( DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond ));
                 if (syncOk)
                 {
                     if (outerInstance.@is(RECEIVING))
