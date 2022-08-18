@@ -6,7 +6,7 @@
 
 **Bug Fixes**
 
--  Fixed a bug preventi the resolution of hostname ip address of the provided proxy.
+-  Fixed a bug preventing the resolution of hostname ip address of the provided proxy.
 
 ## [5.1.4] (24-05-2022)
 
