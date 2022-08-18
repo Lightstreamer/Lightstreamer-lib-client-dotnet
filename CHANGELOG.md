@@ -1,5 +1,13 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.5] (18-08-2022)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Bug Fixes**
+
+-  Fixed a bug preventi the resolution of hostname ip address of the provided proxy.
+
 ## [5.1.4] (24-05-2022)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
