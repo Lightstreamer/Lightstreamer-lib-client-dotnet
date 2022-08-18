@@ -630,7 +630,7 @@ namespace com.lightstreamer.client.protocol
                 else if (messages.Count != listeners.Count)
                 {
                     outerInstance.log.Error("Control request returned an unexpected number of responses: " + messages);
-                    throw new ProtocolErrorException("61", "The number of received responses is different from the number of batched requests");
+                    throw new ProtocolErrorException("61", "The number of received responses is different from the number of batched requests: " + string.Join(",", messages));
 
                 }
                 else

@@ -47,17 +47,42 @@ namespace com.lightstreamer.client.transport.providers.netty
                             host = "127.0.0.1";
                         }
 
-                        IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(host), port); ;
-
-                        if (!string.ReferenceEquals(user, null) || !string.ReferenceEquals(password, null))
+                        try
                         {
-                            return new HttpProxyHandler(ipep, user, password);
-                        }
-                        else
-                        {
-                            return new HttpProxyHandler(ipep);
-                        }
+                            IPAddress ip;
+                            string host4Netty;
 
+                            if ( IPAddress.TryParse(host, out ip) )
+                            {
+                                host4Netty = host;
+
+                                log.Info("Proxy ip: " + host4Netty);
+                            } else
+                            {
+                                host4Netty = System.Net.Dns.GetHostAddresses(host)[0].ToString();
+
+                                log.Info("Proxy ip:: " + host4Netty);
+                            }
+
+                            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(host4Netty), port);
+
+                            if (!string.ReferenceEquals(user, null) || !string.ReferenceEquals(password, null))
+                            {
+                                log.Info("Add user and password.");
+
+                                return new HttpProxyHandler(ipep, user, password);
+                            }
+                            else
+                            {
+                                return new HttpProxyHandler(ipep);
+                            }
+                        } catch (Exception ex)
+                        {
+                            log.Info("Proxy error: " + ex.Message);
+
+                            return null;
+                        }
+                        
                     case "SOCKS4":
 
 
