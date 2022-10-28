@@ -1,5 +1,13 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.6] (27-10-2022)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Bug Fixes**
+
+-  Fixed a bug that could lead to misinterpreting of updates received in cases where multiple websocket frames were involved.
+
 ## [5.1.5] (18-08-2022)
 
 *Compatible with Lightstreamer Server since version 7.0.1*

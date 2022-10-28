@@ -1273,6 +1273,8 @@ namespace com.lightstreamer.client.protocol
                     { // step E
                         string unquoted = EncodingUtils.unquote(value);
                         values.Add(unquoted);
+
+                        log.Debug("Values: " + unquoted);
                     }
                     fieldStart = fieldEnd;
                 }

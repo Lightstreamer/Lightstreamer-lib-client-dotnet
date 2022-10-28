@@ -1,5 +1,6 @@
 ﻿using DotNetty.Buffers;
 using Lightstreamer.DotNet.Logging.Log;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -69,6 +70,10 @@ namespace com.lightstreamer.client.transport.providers.netty
 				 * startIndex and eolIndex are the most important variables (and the only non-final)
 				 * and they must be updated together since they represents the next part of frame to elaborate. 
 				 */
+
+                log.Debug(" Readeable bytes: " + buf.ReadableBytes);
+                log.Debug(" Start: " + buf.ReaderIndex);
+
                 int endIndex = buf.ReaderIndex + buf.ReadableBytes; // ending index of the byte buffer (exclusive)
                 int startIndex = buf.ReaderIndex; // starting index of the current line/part of line (inclusive)
                 int eolIndex; // ending index of the current line/part of line (inclusive) (it points to EOL)
@@ -106,11 +111,13 @@ namespace com.lightstreamer.client.transport.providers.netty
                         {
                             // case B)
                             hasHead = true;
+                            log.Debug("prev line incomplete case B: " + eolIndex);
                         }
                         else
                         {
                             // case C)
                             hasHead = false;
+                            log.Debug("prev line incomplete case C: " + eolIndex);
                         }
                     }
 
@@ -133,10 +140,19 @@ namespace com.lightstreamer.client.transport.providers.netty
                 if (hasHead)
                 {
                     copyLinePart(buf, startIndex, eolIndex + 1);
-                    string line = linePart.toLine();
-                    networkListener.onMessage(line);
 
-                    log.Debug(" :.: " + networkListener.GetType() + " - " + line);
+                    log.Debug("Post copyLinePart hasHead.");
+                    try
+                    {
+                        string line = linePart.toLine();
+                        networkListener.onMessage(line);
+
+                        log.Debug(" :.: " + networkListener.GetType() + " - " + line);
+                    } catch (Exception e)
+                    {
+                        log.Warn("Error in retrieving a message: " + e.Message);
+                        log.Debug(e + " - " + e.StackTrace);
+                    }
 
                     startIndex = eolIndex + 1;
                     eolIndex = findEol(buf, startIndex, endIndex);
@@ -184,15 +200,39 @@ namespace com.lightstreamer.client.transport.providers.netty
         private int findEol(IByteBuffer buf, int startIndex, int endIndex)
         {
             int eolIndex = -1;
+
+            log.Debug("findEol: " + startIndex + " <> " + endIndex);
+
+            // log.Debug("findEol - buf:" + buf.GetString(startIndex, endIndex, Encoding.UTF8));
+
+            try
+            {
+                IByteBuffer debuffer = buf.Copy();
+            } catch (Exception ex)
+            {
+                log.Debug("Error in read buffer: " + ex.Message);
+            }
+            
+
             if (startIndex >= endIndex)
             {
                 return eolIndex;
             }
             int crIndex = buf.IndexOf(startIndex, endIndex, CR);
+
+            if (crIndex < 0)
+            {
+                log.Debug("No CR.");
+            }
+
+
             if (crIndex != -1 && crIndex != endIndex - 1 && buf.GetByte(crIndex + 1) == LF)
             {
                 eolIndex = crIndex + 1;
             }
+
+            log.Debug("findEol - cr: " + crIndex + " eol:" + eolIndex);
+
             return eolIndex;
         }
 
@@ -204,6 +244,9 @@ namespace com.lightstreamer.client.transport.providers.netty
         {
             try
             {
+
+                log.Debug("copyLinePart: " + linePart.Length + " - " + linePart.Position);
+
                 buf.GetBytes(startIndex, linePart, endIndex - startIndex);
             }
             catch (IOException e)
@@ -254,11 +297,18 @@ namespace com.lightstreamer.client.transport.providers.netty
             /// </summary>
             internal virtual string toLine()
             {
+
+                log.Debug("toLine: " + base.Length);
+
                 Debug.Assert(base.Length >= 2);
                 byte[] b = base.GetBuffer();
                 Debug.Assert(b[base.Length - 2] == '\r' && b[base.Length - 1] == '\n');
 
-                return System.Text.Encoding.Default.GetString(b).Substring(0, (int)base.Length - 2);
+                String stemp = System.Text.Encoding.UTF8.GetString(b);
+
+                log.Debug("toLine s: " + stemp.Length);
+
+                return stemp.Substring(0, (int)stemp.Length - 2);
             }
         }
 
