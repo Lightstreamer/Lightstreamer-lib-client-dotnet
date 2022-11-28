@@ -1,5 +1,17 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.7] (28-11-2022)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Bug Fixes**
+
+-  Fixed a bug that could lead in some particular cases to wrong encoding of recevied messages.
+
+**Improvements**
+
+- Added further detail logs for websocket upgrade
+
 ## [5.1.6] (27-10-2022)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
