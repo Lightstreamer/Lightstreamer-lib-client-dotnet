@@ -1,4 +1,22 @@
-﻿using DotNetty.Buffers;
+﻿#region License
+/*
+ * Copyright (c) Lightstreamer Srl
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#endregion License
+
+using DotNetty.Buffers;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
 using System.Diagnostics;
@@ -297,18 +315,35 @@ namespace com.lightstreamer.client.transport.providers.netty
             /// </summary>
             internal virtual string toLine()
             {
-
-                log.Debug("toLine: " + base.Length);
+                int end_b = (int)base.Length;
+                log.Debug("toLine: " + end_b);
 
                 Debug.Assert(base.Length >= 2);
                 byte[] b = base.GetBuffer();
+
                 Debug.Assert(b[base.Length - 2] == '\r' && b[base.Length - 1] == '\n');
 
+                string temp_s = System.Text.Encoding.UTF8.GetString(b, 0, end_b);
+
+                log.Debug("Temp String before: " + temp_s);
+
+                char[] trailers = new char[2];
+                trailers[0] = '\n';
+                trailers[1] = '\r';
+                
+                temp_s = temp_s.TrimEnd(trailers);
+
+                log.Debug("Temp String after: " + temp_s);
+
+                return temp_s;
+
+                /*
                 String stemp = System.Text.Encoding.UTF8.GetString(b);
 
                 log.Debug("toLine s: " + stemp.Length);
 
-                return stemp.Substring(0, (int)stemp.Length - 2);
+                return stemp.Substring(0, (int)end_b - 2);
+                */
             }
         }
 

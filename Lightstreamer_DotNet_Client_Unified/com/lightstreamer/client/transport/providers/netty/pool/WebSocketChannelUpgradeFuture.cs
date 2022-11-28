@@ -1,4 +1,22 @@
-﻿using DotNetty.Codecs.Http;
+﻿#region License
+/*
+ * Copyright (c) Lightstreamer Srl
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#endregion License
+
+using DotNetty.Codecs.Http;
 using DotNetty.Codecs.Http.WebSockets;
 using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
@@ -60,15 +78,24 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             _hsws = false;
             if (chnl.Active)
             {
+
+                log.Debug(chnl + " is active -> upgrade ... " );
+
                 machine.setChannel(chnl, Phase.CONNECTION_OK);
                 upgrade(address);
+
+                log.Debug(chnl + " ... wait upgrade ... " + _hsws);
 
                 while (futureTask == null)
                 {
                     Thread.Sleep(5);
                 }
 
+                log.Debug(chnl + " ... wait upgrade 2 ... " + _hsws);
+
                 await futureTask;
+
+                log.Debug(chnl + " ... done " + _hsws + " - " + futureTask.IsCompleted);
 
                 int maxTimes = 1;
 
@@ -86,9 +113,13 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                         maxTimes++;
                     }
                 }
+
+                log.Debug(chnl + " ... wait upgrade 3 ... " + _hsws);
             }
             else
             {
+                log.Debug(chnl + " is inactive");
+
                 machine.setErrorCause(new Exception("Channel inactive."), Phase.CONNECTION_FAILURE);
             }
 
@@ -166,10 +197,16 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 
                      WebSocketHandshakeHandler wsHandshakeHandler = new WebSocketHandshakeHandler(uri, subprotocol, customHeaders, this);
 
+                     log.Debug(" ... wsHandshakeHandler ... ");
+
                      PipelineUtils.populateWSPipelineForHandshake(chnl, wsHandshakeHandler);
+
+                     log.Debug(" ... add ws pipeline ... ");
 
                     /* WS handshake */
                      futureTask = wsHandshakeHandler.handshake(chnl);
+
+                     log.Debug(" ... ws handshake task: " + futureTask.Id + "  - " + futureTask.IsCompleted + "  - " + futureTask.IsCanceled + "  - " + futureTask.IsFaulted);
 
                  }
                  else
