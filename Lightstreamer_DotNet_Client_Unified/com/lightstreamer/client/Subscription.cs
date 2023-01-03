@@ -20,6 +20,7 @@ using com.lightstreamer.client.events;
 using com.lightstreamer.util;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -135,8 +136,10 @@ namespace com.lightstreamer.client
         private const bool CLEAN = true;
         private const bool DONT_CLEAN = false;
 
-
         private readonly ILogger log = LogManager.GetLogger(Constants.ACTIONS_LOG);
+
+        private readonly ILogger logStats = LogManager.GetLogger(Constants.STATS_LOG);
+
 
         private EventDispatcher<SubscriptionListener> dispatcher = new EventDispatcher<SubscriptionListener>(LightstreamerClient.eventsThread);
 
@@ -166,6 +169,8 @@ namespace com.lightstreamer.client
         protected internal string subMode = Constants.MERGE;
         private double aggregatedRealMaxFrequency = FREQUENCY_NULL;
         private bool subTableFlag = false;
+
+        private static ConcurrentDictionary<string, int> subStats = new ConcurrentDictionary<string, int>();
 
         private string behavior = null;
         internal double requestedMaxFrequency = FREQUENCY_NULL;
@@ -1973,6 +1978,7 @@ namespace com.lightstreamer.client
         internal virtual void update(List<string> args, int item, bool fromMultison)
         {
             log.Debug("Subscription update - " + item + ", " + fromMultison + ", " + args.Count + ", " + this.checkStatusForUpdate());
+            
 
             if (!this.checkStatusForUpdate())
             {
@@ -2037,6 +2043,17 @@ namespace com.lightstreamer.client
 
             string itemName = itemDescriptor.getName(item);
             bool snapshot = this.snapshotByItem[item].Snapshot;
+
+            try
+            {
+                int cc = subStats.AddOrUpdate(sessionThread.SessionManager.SessionId + "|" + itemName + "|" + subscriptionId, 1, (id, count) => count + 1);
+
+                logStats.Info("Number of updates received for the Item " + itemName + " of the Subscription Id " + subscriptionId + " and Session Id " + sessionThread.SessionManager.SessionId + " : " + cc);
+            } catch (Exception e)
+            {
+                logStats.Warn(e.Message);
+            }
+            
             ItemUpdate updateObj = new ItemUpdate(itemName, item, snapshot, args, changedFields, fieldDescriptor);
 
             this.dispatcher.dispatchEvent(new SubscriptionListenerItemUpdateEvent(updateObj));

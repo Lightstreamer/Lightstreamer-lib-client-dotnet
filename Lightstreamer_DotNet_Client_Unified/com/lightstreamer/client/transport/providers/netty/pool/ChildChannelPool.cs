@@ -31,10 +31,10 @@ using System.Threading.Tasks;
 namespace com.lightstreamer.client.transport.providers.netty.pool
 {
     /// <summary>
-    /// Simple <seealso cref="ChannelPool"/> implementation which will acquire a channel from the parent pool if someone tries to acquire
-    /// a <seealso cref="Channel"/> but none is in the pool at the moment. No limit on the maximal concurrent <seealso cref="Channel"/>s is enforced.
+    /// Simple <seealso cref="IChannelPool"/> implementation which will acquire a channel from the parent pool if someone tries to acquire
+    /// a <seealso cref="IChannel"/> but none is in the pool at the moment. No limit on the maximal concurrent <seealso cref="IChannel"/>s is enforced.
     /// 
-    /// This implementation uses LIFO order for <seealso cref="Channel"/>s in the <seealso cref="ChannelPool"/>.
+    /// This implementation uses LIFO order for <seealso cref="IChannel"/>s in the <seealso cref="IChannelPool"/>.
     /// <para>
     /// <b>NB</b> The code was adapted from <seealso cref="SimpleChannelPool"/>.
     /// </para>
@@ -65,7 +65,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         /// </summary>
         /// <param name="bootstrap"> the <seealso cref="Bootstrap"/> used to create promises </param>
         /// <param name="parentPool"> the parent pool providing the channels to the child </param>
-        /// <param name="handler"> the <seealso cref="ChannelPoolHandler"/> that will be notified for the different pool actions </param>
+        /// <param name="handler"> the <seealso cref="IChannelPoolHandler"/> that will be notified for the different pool actions </param>
         public ChildChannelPool(Bootstrap bootstrap, IChannelPool parentPool, IChannelPoolHandler handler)
         {
             Contract.Requires(handler != null);
@@ -120,9 +120,21 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             }
             else
             {
-                var completionSource = new TaskCompletionSource<IChannel>();
-                eventLoop.Execute(this.DoHealthCheck, chl, completionSource);
-                return await completionSource.Task;
+                try
+                {
+
+                    var completionSource = new TaskCompletionSource<IChannel>();
+                    eventLoop.Execute(this.DoHealthCheck, chl, completionSource);
+                    return await completionSource.Task;
+
+                } catch (Exception e)
+                {
+                    log.Error("Something went wromg here: .. .. " + e.Message);
+                    log.Debug(e.StackTrace);
+
+                    return null;
+                }
+                
             }
             // return acquire(bootstrap.Config().group().next().newPromise<IChannel>());
         }

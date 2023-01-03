@@ -22,6 +22,7 @@ using com.lightstreamer.client.transport;
 using com.lightstreamer.util;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -190,7 +191,7 @@ namespace com.lightstreamer.client.protocol
 
         /// <summary>
         /// Dispatches a control request to the transport layer (HTTP or WebSocket).
-        /// <br>
+        /// <br/>
         /// NB All control/message requests which don't depend on the transport implementation must call this method.
         /// </summary>
         public abstract void sendControlRequest(LightstreamerRequest request, RequestTutor tutor, RequestListener reqListener);
@@ -1335,6 +1336,7 @@ namespace com.lightstreamer.client.protocol
             {
                 controlLink = EncodingUtils.unquote(groupCollection[4].ToString());
             }
+
             // notify listeners
 
             session.onOKReceived(sessionId, controlLink, requestLimitLength, keepaliveIntervalDefault);
@@ -1755,7 +1757,7 @@ namespace com.lightstreamer.client.protocol
         }
 
         /// <summary>
-        /// Allows to customize the behavior of <seealso cref="ReverseHeartbeatTimer#onBindSession(boolean)"/>
+        /// Allows to customize the behavior of <seealso cref="ReverseHeartbeatTimer.onBindSession(bool)"/>
         /// with respect to the transport: if the transport is HTTP, bind requests don't matter in the measuring
         /// of heartbeat distance; but if the transport is WebSocket bind requests matter. 
         /// </summary>

@@ -36,6 +36,7 @@ namespace com.lightstreamer.client
         public const string UTILS_LOG = "lightstreamer.utils";
         public const string MPN_LOG = "lightstreamer.mpn";
         public const string HEARTBEAT_LOG = "lightstreamer.heartbeat";
+        public const string STATS_LOG = "lightstreamer.statistics";
 
 
         public const string UNLIMITED = "unlimited";
