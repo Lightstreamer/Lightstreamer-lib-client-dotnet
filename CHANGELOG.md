@@ -1,5 +1,15 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.8] (03-01-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Improvements**
+
+- Introduced a new logger `lightstreamer.statistics`, with messages at INFO level about the number of updates received per each Item.
+
+- Improved internal handling of errors in order to mitigate the possibility of unhandled exceptions.
+
 ## [5.1.7] (28-11-2022)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
