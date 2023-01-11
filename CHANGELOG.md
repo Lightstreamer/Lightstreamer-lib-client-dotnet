@@ -1,5 +1,14 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.2.0-beta] (11-01-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*  
+
+**Improvements**
+
+- Removed the dependencies on DotNetty.Handlers and DotNetty.Codecs.Http to directly embed a custom implementation
+  in order to implement the changes nedded to fix this issue: https://github.com/Azure/DotNetty/pull/374 
+
 ## [5.1.8] (03-01-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
