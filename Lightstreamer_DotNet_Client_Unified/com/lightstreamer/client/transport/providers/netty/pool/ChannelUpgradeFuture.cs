@@ -46,7 +46,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         /// <summary>
         /// Sets the specified listener to this future.  The
         /// specified listener is notified when this future is
-        /// <seealso cref="#isDone() done"/>.  If this future is already
+        /// <seealso cref="Done"/>.  If this future is already
         /// completed, the specified listener is notified immediately.
         /// </summary>
         void addListener(ChannelUpgradeFuture_ChannelUpgradeFutureListener fl);

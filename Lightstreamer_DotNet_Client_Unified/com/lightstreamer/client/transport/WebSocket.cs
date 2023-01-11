@@ -37,10 +37,10 @@ namespace com.lightstreamer.client.transport
 
     /// <summary>
     /// A WebSocket transport implemented using <seealso cref="WebSocketProvider"/>.
-    /// <br>
+    /// <br/>
     /// Its main responsibility are:
     /// <ol>
-    /// <li>exposing a method to write frames into the connection (see <seealso cref="#sendRequest"/>)</li>
+    /// <li>exposing a method to write frames into the connection (see <seealso cref="sendRequest"/>)</li>
     /// <li>notifying the listeners of the events coming from the connection</li>
     /// <li>assuring that the notifications are executed by the SessionThread.</li>
     /// </ol>
@@ -55,7 +55,7 @@ namespace com.lightstreamer.client.transport
         private readonly WebSocketProvider wsClient;
         private readonly MySessionRequestListener sessionListener;
         /// <summary>
-        /// When not null, the requests may omit the parameter LS_session because it is implicitly equal to this value.<br>
+        /// When not null, the requests may omit the parameter LS_session because it is implicitly equal to this value.<br/>
         /// This value is always equal to the LS_session parameter of the last sent bind_session request.
         /// </summary>
         private string defaultSessionId;
@@ -112,6 +112,7 @@ namespace com.lightstreamer.client.transport
                 string cookies = CookieHelper.getCookieHeader(uri);
                 log.Info("Requested cookies for uri " + uri + ": " + cookies);
                 wsClient.connect(uri.ToString(), sessionListener, options.HttpExtraHeadersOnSessionCreationOnly ? null : options.HttpExtraHeaders, cookies, options.Proxy, options.RetryDelay);
+                    // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                 sessionListener.state = InternalState.CONNECTING;
             }
             catch (Exception e)
@@ -187,7 +188,7 @@ namespace com.lightstreamer.client.transport
         /// <summary>
         /// Forwards the messages coming from the data stream to the connection listeners.
         /// <para>
-        /// NB All the methods must be called by SessionThread in order to fulfill the contract of <seealso cref="WebSocket#open"/>.
+        /// NB All the methods must be called by SessionThread in order to fulfill the contract of <seealso cref="WebSocket.open(string, StreamListener, ConnectionListener)"/>.
         /// </para>
         /// </summary>
         private class MySessionRequestListener : SessionRequestListener
@@ -302,15 +303,15 @@ namespace com.lightstreamer.client.transport
             /// </summary>
             NOT_CONNECTED,
             /// <summary>
-            /// State after calling <seealso cref="WebSocket#open(String, StreamListener, ConnectionListener)"/>.
+            /// State after calling <seealso cref="WebSocket.open(string, StreamListener, ConnectionListener)"/>.
             /// </summary>
             CONNECTING,
             /// <summary>
-            /// State after the method <seealso cref="WebSocketRequestListener#onOpen()"/> is called.
+            /// State after the method <seealso cref="MySessionRequestListener.onOpen"/> is called.
             /// </summary>
             CONNECTED,
             /// <summary>
-            /// State after calling <seealso cref="WebSocket#close()"/>. In this state, the listeners are disabled.
+            /// State after calling <seealso cref="WebSocket.close"/>. In this state, the listeners are disabled.
             /// </summary>
             DISCONNECTED,
             /// <summary>

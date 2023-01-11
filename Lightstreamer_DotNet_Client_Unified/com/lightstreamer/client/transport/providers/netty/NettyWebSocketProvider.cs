@@ -37,7 +37,7 @@ namespace com.lightstreamer.client.transport.providers.netty
     /// WebSocket client based on Netty.
     /// The implementation is modeled after <a href="https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/http/websocketx/client">
     /// this example</a>.
-    /// <br>
+    /// <br/>
     /// This class notifies a <seealso cref="SessionRequestListener"/> when the following events happen:
     /// <ul>
     /// <li>onOpen: fires when the connection is established and the WebSocket handshake is complete</li>
@@ -56,7 +56,7 @@ namespace com.lightstreamer.client.transport.providers.netty
     /// The actual implementation limits to 64Kb the maximum frame size. 
     /// This is not a problem because the Lightstreamer server sends frames whose size is at most 8Kb. 
     /// The limit can be modified specifying a different size at the creation of the <seealso cref="WebSocketClientHandshaker"/>
-    /// (see the method <seealso cref="WebSocketClientHandshakerFactory#newHandshaker(URI, WebSocketVersion, String, boolean, io.netty.handler.codec.http.HttpHeaders, int)"/>
+    /// (see the method <seealso cref="WebSocketClientHandshakerFactory.NewHandshaker(Uri, WebSocketVersion, string, bool, DotNetty.Codecs.Http.HttpHeaders, int)"/>
     /// in the inner class {@code WebSocketHandshakeHandler} of <seealso cref="WebSocketChannelPool"/>).
     /// </para>
     /// </summary>
@@ -147,6 +147,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                 }
 
                 channel.close();
+                    // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                 channel = null;
             }
         }
@@ -236,6 +237,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 							 */
                             released = true;
                             pool.ReleaseAsync(ch);
+                                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                         }
                     }
                 }
@@ -273,6 +275,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                 if (!released)
                 {
                     pool.ReleaseAsync(ch);
+                        // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                 }
                 else
                 {
@@ -287,6 +290,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                     // Debug.Assert(ch.EventLoop.InEventLoop);
                     log.Error("Websocket write failed [" + ch.Id + "]: " + message, cause);
                     close();
+                        // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                     networkListener.onBroken();
                 }
             }
@@ -394,6 +398,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                 } else if (mEnd.Count > 0)
                 {
                     ch.close();
+                        // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                 }
             }
 

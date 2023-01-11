@@ -23,8 +23,8 @@ namespace com.lightstreamer.client.transport.providers
 	using ThreadShutdownHook = com.lightstreamer.util.threads.ThreadShutdownHook;
 
 	/// <summary>
-	/// Interface used to decouple the application classes from a specific WebSocket implementation (for example Netty <seealso cref="WebSocketClient"/>).
-	/// Instances of this type are obtained through the factory <seealso cref="TransportFactory#getDefaultWebSocketFactory()"/>.
+	/// Interface used to decouple the application classes from a specific WebSocket implementation.
+	/// Instances of this type are obtained through the factory <seealso cref="TransportFactory{T}.DefaultWebSocketFactory"/>.
 	/// </summary>
 	public interface WebSocketProvider
 	{
@@ -42,7 +42,7 @@ namespace com.lightstreamer.client.transport.providers
 		/// Sends a message.
 		/// <para>
 		/// <b>NB</b> When the message has been successfully written on WebSocket,
-		/// it is mandatory to notify the method <seealso cref="RequestListener#onOpen()"/>.
+		/// it is mandatory to notify the method <seealso cref="RequestListener.onOpen"/>.
 		/// </para>
 		/// </summary>
 		void send(string message, RequestListener listener);

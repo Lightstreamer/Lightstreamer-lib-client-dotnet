@@ -158,6 +158,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             NettyInterruptionHandler interruptionHandler = new NettyInterruptionHandler();
 
             bindAsync(uri, target, httpListener, httpRequest, interruptionHandler);
+                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
 
             return interruptionHandler;
         }
@@ -195,6 +196,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                         {
 
                             bindAsync(uri, target, httpListener, httpRequest, interruptionHandler);
+                                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
                         }), 500);
 
                         if (log.IsDebugEnabled)

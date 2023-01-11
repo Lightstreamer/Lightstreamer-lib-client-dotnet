@@ -51,6 +51,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             }
 
             wcuf.AwaitChannel(timeout);
+                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
 
             return wcuf.UpgradeTask;
         }

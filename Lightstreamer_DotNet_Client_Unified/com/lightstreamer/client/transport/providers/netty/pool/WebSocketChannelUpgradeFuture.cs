@@ -49,7 +49,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
         private static readonly ILogger log = LogManager.GetLogger(Constants.NETTY_POOL_LOG);
 
         private IChannel chnl;
-        private static Task futureTask;
+        private Task futureTask;
         private volatile bool _hsws;
 
         private StateMachine machine;

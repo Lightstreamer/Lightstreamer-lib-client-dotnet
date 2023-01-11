@@ -23,7 +23,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 {
 
     /// <summary>
-    /// Wraps a <seealso cref="HttpRequestListener"/> and its socket.
+    /// Wraps a <seealso cref="HttpProvider_HttpRequestListener"/> and its socket.
     /// When the request has been completed, the socket is returned to the pool.
     /// </summary>
     public class NettyRequestListener : RequestListener

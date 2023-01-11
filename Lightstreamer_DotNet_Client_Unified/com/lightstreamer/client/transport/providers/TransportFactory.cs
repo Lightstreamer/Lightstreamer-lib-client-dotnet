@@ -33,7 +33,7 @@ namespace com.lightstreamer.client.transport.providers
     /// 
     /// </para>
     /// </summary>
-    /// @param <T> either <seealso cref="HttpProvider"/> or <seealso cref="WebSocketProvider"/>  </param>
+    /// @param <T> either <seealso cref="HttpProvider"/> or <seealso cref="WebSocketProvider"/>
     public abstract class TransportFactory<T>
     {
 

@@ -65,16 +65,16 @@ namespace com.lightstreamer.client.session
         /// <summary>
         /// Address of the server for the current session.
         /// It can be the control-link (carried by CONOK message), 
-        /// or <seealso cref="ConnectionDetails#getServerAddress()"/> if the control-link is not set.
+        /// or <seealso cref="ConnectionDetails.ServerAddress"/> if the control-link is not set.
         /// It can also be null before receiving the first CONOK message.
         /// </summary>
         protected internal string sessionServerAddress = null;
         /// <summary>
-        /// Copy of <seealso cref="ConnectionDetails#getServerAddress()"/>.
+        /// Copy of <seealso cref="ConnectionDetails.ServerAddress"/>.
         /// </summary>
         protected internal string serverAddressCache = null;
         /// <summary>
-        /// Copy of <seealso cref="ConnectionOptions#isServerInstanceAddressIgnored()"/>.
+        /// Copy of <seealso cref="ConnectionOptions.ServerInstanceAddressIgnored"/>.
         /// </summary>
         protected internal bool ignoreServerAddressCache = false;
 
@@ -1086,7 +1086,7 @@ namespace com.lightstreamer.client.session
         /// <li>it is forbidden to retransmit a request when a response to a more recent request has been received</li>
         /// </ol>
         /// NB We say that a request is more recent than another if it was issued later by the client
-        /// (i.e. it has a greater value of <seealso cref="ConstrainRequest#getClientRequestId()"/>).
+        /// (i.e. it has a greater value of <seealso cref="ConstrainRequest.ClientRequestId"/>).
         /// </para>
         /// <para>
         /// The rules above ensures that when two bandwidth requests are successively issued, it is not possible

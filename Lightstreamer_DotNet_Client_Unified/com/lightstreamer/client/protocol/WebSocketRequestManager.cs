@@ -34,12 +34,12 @@ namespace com.lightstreamer.client.protocol
     /// the requests are buffered and sent later.
     /// <para>
     /// <b>Note 1</b>
-    /// Method <seealso cref="#openSocket(String, StreamListener)"/> is used when the flag isEarlyWSOpenEnabled is set. If the method is not called explicitly,
-    /// method <seealso cref="#bindSession(SessionRequest, RequestListener, long, long, ListenableFuture)"/> will call it.
+    /// Method <seealso cref="openWS(Protocol, string, StreamListener)"/> is used when the flag isEarlyWSOpenEnabled is set. If the method is not called explicitly,
+    /// method <seealso cref="bindSession(BindSessionRequest, StreamListener, long, long, ListenableFuture)"/> will call it.
     /// </para>
     /// <para>
     /// <b>Note 2</b>
-    /// If method <seealso cref="#openSocket(String, StreamListener)"/> is called twice in a row (this can happen if the server sends a control-link), 
+    /// If method <seealso cref="openWS(Protocol, string, StreamListener)"/> is called twice in a row (this can happen if the server sends a control-link), 
     /// the final effect is to close the old socket and to open a new one.
     /// </para>
     /// </summary>
@@ -56,7 +56,7 @@ namespace com.lightstreamer.client.protocol
         private PendingBind bindRequest;
         /// <summary>
         /// Request that the manager has sent but it has not been written on WebSocket.
-        /// Must be cleared when <seealso cref="RequestListener#onOpen()"/> is called 
+        /// Must be cleared when <seealso cref="RequestListener.onOpen"/> is called 
         /// (we assume that WebSocket is reliable).
         /// </summary>
         private PendingRequest ongoingRequest;
@@ -116,7 +116,7 @@ namespace com.lightstreamer.client.protocol
 
         /// <summary>
         /// {@inheritDoc}
-        /// If the socket is not open, calls <seealso cref="#openSocket(String, StreamListener)"/>.
+        /// If the socket is not open, calls <seealso cref="openWS(Protocol, string, StreamListener)"/>.
         /// </summary>
         public virtual RequestHandle bindSession(BindSessionRequest request, StreamListener reqListener, long tcpConnectTimeout, long tcpReadTimeout, ListenableFuture bindFuture)
         {
@@ -381,7 +381,7 @@ namespace com.lightstreamer.client.protocol
         }
 
         /// <summary>
-        /// A wrapper assuring that the method <seealso cref="RequestListener#onOpen()"/> is executed
+        /// A wrapper assuring that the method <seealso cref="RequestListener.onOpen"/> is executed
         /// in the SessionThread.
         /// </summary>
         private class ListenerWrapper : RequestListener
@@ -397,7 +397,7 @@ namespace com.lightstreamer.client.protocol
             }
 
             /// <summary>
-            /// Extra-operations to perform before executing <seealso cref="RequestListener#onOpen()"/>.
+            /// Extra-operations to perform before executing <seealso cref="RequestListener.onOpen"/>.
             /// </summary>
             public virtual void doOpen()
             {

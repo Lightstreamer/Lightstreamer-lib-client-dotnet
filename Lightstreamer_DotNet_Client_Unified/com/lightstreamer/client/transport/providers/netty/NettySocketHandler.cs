@@ -108,7 +108,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             this.interruptionHandler = newInterruptionHandler;
         }
 
-        private async void errorAsync(IChannel ch)
+        private void errorAsync(IChannel ch)
         {
             if (logPool.IsDebugEnabled)
             {
@@ -125,7 +125,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             this.set(CLOSED); //we'll be closed soon anyway
 
             closeChannel(ch);
-
+                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
         }
 
         private void Close()
@@ -152,6 +152,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             if (!keepalive)
             {
                 closeChannel(ctx.Channel);
+                    // NOTE: async function invoked concurrently
             }
 
             if (this.socketListener != null)
@@ -222,6 +223,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                     if (this.Interrupted)
                     {
                         closeChannel(ch);
+                            // NOTE: async function invoked concurrently
                     }
 
                 }
@@ -267,6 +269,7 @@ namespace com.lightstreamer.client.transport.providers.netty
                     {
                         log.Info("Force socket close [" + ch.Id + "]");
                         closeChannel(ch);
+                            // NOTE: async function invoked concurrently
                     }
                 }
 

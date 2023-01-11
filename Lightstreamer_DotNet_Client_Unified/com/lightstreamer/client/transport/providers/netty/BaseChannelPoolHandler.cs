@@ -33,9 +33,9 @@ namespace com.lightstreamer.client.transport.providers.netty
     /// <para>
     /// The strategy of automatic closing of the idle sockets rests on the following assumptions:
     /// <ol>
-    /// <li>each channel has its own instance of <seealso cref="IdleStateTimer"/> as a channel attribute with key <seealso cref="#IDLE_KEY"/></li>
-    /// <li>a timer is started when a channel is released to the pool (see <seealso cref="IdleStateTimer#setIdle()"/>)</li>
-    /// <li>the timer is stopped when the channel is created/acquired (see <seealso cref="IdleStateTimer#setActive()"/>)</li>
+    /// <li>each channel has its own instance of <seealso cref="IdleStateTimer"/> as a channel attribute with key <seealso cref="IDLE_KEY"/></li>
+    /// <li>a timer is started when a channel is released to the pool (see <seealso cref="IdleStateTimer.setIdle"/>)</li>
+    /// <li>the timer is stopped when the channel is created/acquired (see <seealso cref="IdleStateTimer.setActive"/>)</li>
     /// </ol>
     /// </para>
     /// </summary>
@@ -143,7 +143,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             }
 
             /// <summary>
-            /// Sets the channel as idle. If the channel stays idle longer than <seealso cref="Constants#CLOSE_SOCKET_TIMEOUT_MILLIS"/>,
+            /// Sets the channel as idle. If the channel stays idle longer than <seealso cref="Constants.CLOSE_SOCKET_TIMEOUT_MILLIS"/>,
             /// the channel is closed.
             /// </summary>
             public virtual void setIdle()

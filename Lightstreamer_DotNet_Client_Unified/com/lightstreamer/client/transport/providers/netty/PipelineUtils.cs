@@ -16,6 +16,7 @@
  */
 #endregion License
 
+using com.lightstreamer.client.transport.providers.netty.pool;
 using DotNetty.Codecs.Http;
 using DotNetty.Codecs.Http.WebSockets.Extensions.Compression;
 using DotNetty.Handlers.Proxy;
@@ -33,10 +34,10 @@ namespace com.lightstreamer.client.transport.providers.netty
     /// The typical life-cycle of a channel is the following:
     /// <ul>
     /// <li>the channel is created to send a HTTP request and a HTTP user-defined handler is added to the pipeline 
-    /// (see <seealso cref="#populateHttpPipeline(Channel, NettyFullAddress, ChannelHandler)"/>)</li>
+    /// (see <seealso cref="populateHttpPipeline"/>)</li>
     /// <li>the channel is used and then released to its HTTP pool</li>
-    /// <li>the channel is acquired from the pool and upgraded to WebSocket (see <seealso cref="#populateWSPipelineForHandshake(Channel, ChannelHandler)"/>)</li>
-    /// <li>when the handshake is complete, the WebSocket user-defined handler is added to the pipeline (see <seealso cref="#populateWSPipeline(Channel, ChannelHandler)"/>)</li>
+    /// <li>the channel is acquired from the pool and upgraded to WebSocket (see <seealso cref="populateWSPipelineForHandshake"/>)</li>
+    /// <li>when the handshake is complete, the WebSocket user-defined handler is added to the pipeline (see <seealso cref="populateWSPipeline"/>)</li>
     /// <li>the channel is used and then released to its WebSocket pool</li>
     /// </ul>
     /// </para>

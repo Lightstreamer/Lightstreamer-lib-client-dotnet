@@ -101,6 +101,7 @@ namespace com.lightstreamer.client.transport.providers.netty
             {
                 SimpleChannelPool pool = poolMap.PoolMap.Get(address);
                 pool.ReleaseAsync(ch);
+                    // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
             }
         }
 
@@ -120,7 +121,7 @@ namespace com.lightstreamer.client.transport.providers.netty
 		 */
 
         /// <summary>
-        /// Wraps a socket pool map and assures that it is properly initialized when returned by <seealso cref="#getPoolMap()"/>.
+        /// Wraps a socket pool map and assures that it is properly initialized when returned by <seealso cref="PoolMap"/>.
         /// </summary>
         private class ChannelPoolMapWrapper
         {
