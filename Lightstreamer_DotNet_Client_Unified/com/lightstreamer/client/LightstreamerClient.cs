@@ -19,7 +19,7 @@
 using com.lightstreamer.client.events;
 using com.lightstreamer.client.session;
 using com.lightstreamer.client.transport.providers;
-using CookieManager;
+
 using Lightstreamer.DotNet.Logging.Log;
 
 using System;
@@ -72,7 +72,7 @@ namespace com.lightstreamer.client
         /// <summary>
         /// A constant string representing the version of the library.
         /// </summary>
-        public static readonly string LIB_VERSION = "5.2.0-beta".Trim();
+        public static readonly string LIB_VERSION = "5.2.0-beta2".Trim();
 
         private static readonly Regex ext_alpha_numeric = new Regex("^[a-zA-Z0-9_]*$");
 
@@ -607,7 +607,7 @@ namespace com.lightstreamer.client
         /// <param name="cookies"> a list of cookies, represented in the HttpCookie type.
         /// </param>
         /// <seealso cref="getCookies" />
-        public static void addCookies(Uri uri, IList<HttpCookie> cookies)
+        public static void addCookies(Uri uri, IList<Cookie> cookies)
         {
             CookieHelper.addCookies(uri, cookies);
         }
@@ -625,7 +625,7 @@ namespace com.lightstreamer.client
         /// <returns> an immutable list with the various cookies that can
         /// be sent in a HTTP request for the specified URI. If a null URI was supplied,
         /// all available non-expired cookies will be returned.</returns>
-        public static IList<HttpCookie> getCookies(Uri uri)
+        public static IList<Cookie> getCookies(Uri uri)
         {
             return CookieHelper.getCookies(uri);
         }

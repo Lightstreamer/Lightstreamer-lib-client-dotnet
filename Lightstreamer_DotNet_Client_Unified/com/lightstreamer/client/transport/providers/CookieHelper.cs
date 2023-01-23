@@ -16,12 +16,11 @@
  */
 #endregion License
 
-using CookieManager;
+// using CookieManager;
 using Lightstreamer.DotNet.Logging.Log;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace com.lightstreamer.client.transport.providers
 {
@@ -32,22 +31,22 @@ namespace com.lightstreamer.client.transport.providers
 
         private static CookieContainer cookieHandler = new CookieContainer();
 
-        private static IList<HttpCookie> custom_cookies = null;
+        private static IList<Cookie> custom_cookies = null;
 
-        private static void logCookies(string message, IList<HttpCookie> cookies)
+        private static void logCookies(string message, IList<Cookie> cookies)
         {
             
-            foreach (HttpCookie cookie in cookies)
+            foreach (Cookie cookie in cookies)
             {
                 message += ( "\r\n    " + cookie.ToString() );
-                message += ( " - domain " + cookie.Get("Domain") );
-                message += ( " - path " + cookie.Get("Path") );
-                message += ( " - version " + cookie.Get("Version") );
+                message += ( " - domain " + cookie.Domain );
+                message += ( " - path " + cookie.Path );
+                message += ( " - version " + cookie.Version );
             }
             log.Debug(message);
         }
 
-        public static void addCookies(Uri uri, IList<HttpCookie> cookies)
+        public static void addCookies(Uri uri, IList<Cookie> cookies)
         {
             if (cookies == null)
             {
@@ -63,16 +62,14 @@ namespace com.lightstreamer.client.transport.providers
                     log.Debug("Before adding cookies for " + uri + ": " + cookieHandler.GetCookieHeader(uri));
                     logCookies("Cookies to be added for " + uri, cookies);
                 }
-                foreach (HttpCookie cookie in cookies)
+                foreach (Cookie cookie in cookies)
                 {
                     string tmpcookie = "";
-                    foreach (string keyy in cookie.Keys)
-                    {
-                        tmpcookie += keyy;
-                        tmpcookie += "=";
-                        tmpcookie += cookie.Get(keyy);
-                        tmpcookie += "; ";
-                    }
+
+                    tmpcookie += cookie.Name;
+                    tmpcookie += "=";
+                    tmpcookie += cookie.Value;
+                    tmpcookie += "; ";
                     
                     /// store.Set(uri.ToString(), cookie);
                     cookieHandler.SetCookies(uri, tmpcookie);
@@ -85,9 +82,9 @@ namespace com.lightstreamer.client.transport.providers
             }
         }
 
-        private static IList<HttpCookie> emptyCookieList = (IList<HttpCookie>)new System.Collections.Generic.List<HttpCookie>();
+        private static IList<Cookie> emptyCookieList = (IList<Cookie>)new System.Collections.Generic.List<Cookie>();
 
-        public static IList<HttpCookie> getCookies(Uri uri)
+        public static IList<Cookie> getCookies(Uri uri)
         {
 
             lock (typeof(CookieHelper))

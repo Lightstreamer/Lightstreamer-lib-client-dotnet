@@ -1,5 +1,13 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.2.0-beta2] (18-01-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*  
+
+**Improvements**
+
+- Removed the dependency on CookieManager switching from HttpCookie to Cookie type
+  
 ## [5.2.0-beta] (11-01-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*  

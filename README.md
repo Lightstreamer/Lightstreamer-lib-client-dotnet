@@ -117,12 +117,9 @@ To build the library, follow below steps:
 2. Remove auto created class.cs source file
 3. Add all the existing resources contained in the `Lightstreamer_DotNet_Client_Unified` folder
 4. Add NuGet references for:
-	- CookieManager
 	- DotNetty.Buffers
-	- DotNetty.Codecs.Http
 	- DotNetty.Codecs.Mqtt
 	- DotNetty.Common
-	- DotNetty.Handlers
 	- DotNetty.Transport
 	- System.Collections.Immutable
 	- System.Management
