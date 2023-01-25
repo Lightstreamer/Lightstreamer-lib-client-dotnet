@@ -151,15 +151,17 @@ namespace com.lightstreamer.client.transport.providers.netty
             
             if (!keepalive)
             {
+                log.Debug("Reuse !Keeaplive for: " + ctx.Channel.Id);
+
                 closeChannel(ctx.Channel);
-                    // NOTE: async function invoked concurrently
+                // NOTE: async function invoked concurrently
             }
 
             if (this.socketListener != null)
             {
-                log.Debug("Reuse failed for " + ctx.Channel.Id);
+                log.Debug("Reuse socketListener null for:  " + ctx.Channel.Id);
 
-                this.socketListener.onClosed();
+                // this.socketListener.onClosed();
             }
             this.socketListener = null;
             this.interruptionHandler = null;

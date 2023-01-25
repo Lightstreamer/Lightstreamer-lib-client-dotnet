@@ -87,14 +87,22 @@ namespace com.lightstreamer.client.transport.providers.netty
 
         public virtual void ChannelReleased(IChannel channel)
         {
-            IdleStateTimer idls = (IdleStateTimer)channel.GetAttribute(IDLE_KEY);
+            IdleStateTimer idls = channel.GetAttribute(IDLE_KEY).Get();
+
+            log.Info("Channel Released: " + channel.Id);
+
             idls.setIdle();
         }
 
         public virtual void ChannelAcquired(IChannel channel)
         {
-            IdleStateTimer idls = (IdleStateTimer)channel.GetAttribute(IDLE_KEY);
+            log.Info("Channel Acquired: " + channel.Id);
+
+            IdleStateTimer idls = channel.GetAttribute(IDLE_KEY).Get();
+                
             idls.setActive();
+
+            log.Info("Channel Activated. " + idls);
         }
 
         public virtual void ChannelCreated(IChannel channel)
