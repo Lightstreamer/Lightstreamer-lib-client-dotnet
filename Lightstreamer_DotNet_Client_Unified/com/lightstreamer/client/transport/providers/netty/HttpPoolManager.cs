@@ -94,14 +94,14 @@ namespace com.lightstreamer.client.transport.providers.netty
             return pool.AcquireAsync();
         }
 
-        public virtual void release(NettyFullAddress address, IChannel ch)
+        public virtual async void release(NettyFullAddress address, IChannel ch)
         {
             ChannelPoolMapWrapper poolMap = poolMapRef.Value;
             if (poolMap != null)
             {
                 SimpleChannelPool pool = poolMap.PoolMap.Get(address);
-                pool.ReleaseAsync(ch);
-                    // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
+                await pool.ReleaseAsync(ch);
+                // NOTE: async function not awaited; ensure it doesn't throw in the concurrent part
             }
         }
 

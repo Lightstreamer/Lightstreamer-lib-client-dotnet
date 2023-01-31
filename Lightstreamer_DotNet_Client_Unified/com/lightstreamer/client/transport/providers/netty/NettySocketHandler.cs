@@ -159,9 +159,9 @@ namespace com.lightstreamer.client.transport.providers.netty
 
             if (this.socketListener != null)
             {
-                log.Debug("Reuse socketListener null for:  " + ctx.Channel.Id);
+                log.Debug("Reuse socketListener not null for: " + ctx.Channel.Id);
 
-                // this.socketListener.onClosed();
+                this.socketListener.onClosed();
             }
             this.socketListener = null;
             this.interruptionHandler = null;

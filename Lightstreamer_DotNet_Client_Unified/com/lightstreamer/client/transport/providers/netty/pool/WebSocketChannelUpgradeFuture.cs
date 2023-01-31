@@ -83,6 +83,9 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                     log.Debug(chnl + " is active -> upgrade ... ");
 
                     machine.setChannel(chnl, Phase.CONNECTION_OK);
+
+                    log.Debug(chnl + " is active --> upgrade ... ");
+
                     upgrade(address);
 
                     log.Debug(chnl + " ... wait upgrade ... " + _hsws);
@@ -104,10 +107,10 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                     {
                         Thread.Sleep(5);
 
-                        if ((maxTimes * 10) >= (timeout))
+                        if ((maxTimes * 10) >= (400))
                         {
                             _hsws = true;
-                            machine.next(Phase.UPGRADE_FAILURE);
+                            // machine.next(Phase.UPGRADE_FAILURE);
                         }
                         else
                         {
@@ -155,6 +158,86 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
             _hsws = true;
         }
 
+        private void execute_upgrade(ExtendedNettyFullAddress address)
+        {
+            log.Debug(" ... start ws upgrade post-execute ... ");
+
+            /*
+             * If the eventLoop is overloaded, when this task is executed the channel can be broken
+             * (for example because the server has closed it).
+             * So the first thing to do is to check if the channel is healthy.
+             */
+            if (chnl.Active)
+            {
+                try
+                {
+                    // Thread.Sleep(2000);
+
+                    log.Debug(" ... start ws upgrade post--execute ... ");
+
+                    /* set cookies and extra headers */
+                    string cookies = address.Cookies;
+                    IDictionary<string, string> extraHeaders = address.ExtraHeaders;
+                    DefaultHttpHeaders customHeaders = new DefaultHttpHeaders();
+                    if (extraHeaders != null)
+                    {
+                        foreach (KeyValuePair<string, string> entry in extraHeaders)
+                        {
+                            customHeaders.Add(new AsciiString(entry.Key), entry.Value);
+                        }
+                    }
+                    if (!string.ReferenceEquals(cookies, null) && cookies.Length > 0)
+                    {
+                        customHeaders.Set(HttpHeaderNames.Cookie, cookies);
+                    }
+                    /* build url */
+                    NettyFullAddress remoteAddress = address.Address;
+                    string scheme = remoteAddress.Secure ? "wss" : "ws";
+                    string host = remoteAddress.Host;
+                    string url;
+
+                    int port = remoteAddress.Port;
+                    if (host.Equals("::1"))
+                    {
+                        url = scheme + "://localhost:" + port + "/lightstreamer";
+                    }
+                    else
+                    {
+                        url = scheme + "://" + host + ":" + port + "/lightstreamer";
+                    }
+
+                    Uri uri = LsUtils.uri(url);
+                    string subprotocol = Constants.TLCP_VERSION + ".lightstreamer.com";
+                    /* build pipeline */
+
+                    WebSocketHandshakeHandler wsHandshakeHandler = new WebSocketHandshakeHandler(uri, subprotocol, customHeaders, this);
+
+                    log.Debug(" ... wsHandshakeHandler ... ");
+
+                    PipelineUtils.populateWSPipelineForHandshake(chnl, wsHandshakeHandler);
+
+                    log.Debug(" ... add ws pipeline ... ");
+
+                    /* WS handshake */
+                    futureTask = wsHandshakeHandler.handshake(chnl);
+
+                    log.Debug(" ... ws handshake task: " + futureTask.Id + "  - " + futureTask.IsCompleted + "  - " + futureTask.IsCanceled + "  - " + futureTask.IsFaulted);
+                }
+                catch (Exception ex)
+                {
+                    log.Warn("Connection failure: " + ex.Message);
+                    log.Debug(ex.StackTrace);
+
+                    futureTask = Task.Factory.StartNew(() => Thread.Sleep(2));
+                }
+            }
+            else
+            {
+                log.Warn("Channel not active.");
+                chnl.CloseAsync();
+                futureTask = Task.Factory.StartNew(() => Thread.Sleep(2));
+            }
+        }
         /// <summary>
         /// Upgrade the channel to WebSocket.
         /// </summary>
@@ -168,81 +251,20 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
 			 * the method WebSocketClientHandshaker.handshake returns leaving the channel pipeline in a mess.
 			 * ================================================================================================
 			 */
-
-            chnl.EventLoop.Execute(() =>
-             {
-                /*
-                 * If the eventLoop is overloaded, when this task is executed the channel can be broken
-                 * (for example because the server has closed it).
-                 * So the first thing to do is to check if the channel is healthy.
-                 */
-                 if (chnl.Active)
-                 {
-                     try
-                     {
-                         Thread.Sleep(2000);
-
-                         /* set cookies and extra headers */
-                         string cookies = address.Cookies;
-                         IDictionary<string, string> extraHeaders = address.ExtraHeaders;
-                         DefaultHttpHeaders customHeaders = new DefaultHttpHeaders();
-                         if (extraHeaders != null)
-                         {
-                             foreach (KeyValuePair<string, string> entry in extraHeaders)
-                             {
-                                 customHeaders.Add(new AsciiString(entry.Key), entry.Value);
-                             }
-                         }
-                         if (!string.ReferenceEquals(cookies, null) && cookies.Length > 0)
-                         {
-                             customHeaders.Set(HttpHeaderNames.Cookie, cookies);
-                         }
-                         /* build url */
-                         NettyFullAddress remoteAddress = address.Address;
-                         string scheme = remoteAddress.Secure ? "wss" : "ws";
-                         string host = remoteAddress.Host;
-                         string url;
-
-                         int port = remoteAddress.Port;
-                         if (host.Equals("::1"))
-                         {
-                             url = scheme + "://localhost:" + port + "/lightstreamer";
-                         }
-                         else
-                         {
-                             url = scheme + "://" + host + ":" + port + "/lightstreamer";
-                         }
-
-                         Uri uri = LsUtils.uri(url);
-                         string subprotocol = Constants.TLCP_VERSION + ".lightstreamer.com";
-                         /* build pipeline */
-
-                         WebSocketHandshakeHandler wsHandshakeHandler = new WebSocketHandshakeHandler(uri, subprotocol, customHeaders, this);
-
-                         log.Debug(" ... wsHandshakeHandler ... ");
-
-                         PipelineUtils.populateWSPipelineForHandshake(chnl, wsHandshakeHandler);
-
-                         log.Debug(" ... add ws pipeline ... ");
-
-                         /* WS handshake */
-                         futureTask = wsHandshakeHandler.handshake(chnl);
-
-                         log.Debug(" ... ws handshake task: " + futureTask.Id + "  - " + futureTask.IsCompleted + "  - " + futureTask.IsCanceled + "  - " + futureTask.IsFaulted);
-                     } catch (Exception ex)
-                     {
-                         log.Warn("Connection failure: " + ex.Message);
-                         log.Debug(ex.StackTrace);
-
-                         futureTask = Task.Factory.StartNew(() => Thread.Sleep(2));
-                     }
-                 }
-                 else
-                 {
-                     futureTask = Task.Factory.StartNew(() => Thread.Sleep(2));
-                 }
-             });
-
+            
+            log.Debug(" ... start ws upgrade pre-execute ... " + chnl.EventLoop.IsShutdown + " , " + chnl.EventLoop.InEventLoop + " , " + chnl.EventLoop.IsTerminated);
+            
+            if (chnl.EventLoop.InEventLoop)
+            {
+                execute_upgrade(address);
+            } else
+            {
+                chnl.EventLoop.Execute(() =>
+                {
+                    execute_upgrade(address);
+                });
+            }
+            
             return ;
         }
 

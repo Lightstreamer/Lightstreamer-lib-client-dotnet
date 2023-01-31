@@ -168,6 +168,9 @@ namespace com.lightstreamer.client.transport.providers.netty
                         stopwatch.Start();
                     }
 
+
+                    log.Info("Set channel idle  [" + ch.Id + "] + " + closeSocketTimeoutNs);
+
                     // the scheduler runs the method run() below
                     if (closeSocketTimeoutNs > 0)
                     {

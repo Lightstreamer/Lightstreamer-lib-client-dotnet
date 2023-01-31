@@ -460,6 +460,9 @@ namespace com.lightstreamer.client.protocol
 
         private bool onComplete(string why)
         {
+
+            log.Info("Http Request on Complete: " + why);
+
             if (this.@is(END))
             {
                 //don't care
@@ -618,6 +621,9 @@ namespace com.lightstreamer.client.protocol
                  * - the presence of ERROR messages
                  * - an unexpected number of responses
                  */
+
+                outerInstance.log.Info("Http request process messages No. " + messages.Count);
+
                 if (messages.Count == 1 && messages[0].StartsWith("ERROR", StringComparison.Ordinal))
                 {
                     outerInstance.log.Error("Control request returned an ERROR message: " + messages);
@@ -653,6 +659,7 @@ namespace com.lightstreamer.client.protocol
                     }
                 }
                 /* no ERROR message: process the responses */
+
                 for (int i = 0; i < messages.Count; i++)
                 {
                     listeners[i].onMessage(messages[i]);
@@ -661,6 +668,8 @@ namespace com.lightstreamer.client.protocol
 
             public virtual void onClosed()
             {
+
+                outerInstance.log.Info("Http request onClosed -1- ");
 
                 outerInstance.ongoingRequests.Clear();
                 if (outerInstance.@is(END))
