@@ -1,12 +1,20 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.2.0-beta4] (31-01-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*  
+
+**Bug Fixes**
+
+- Correct a bug introduced with the *5.2.0-beta3* preventing control requests to properly work in case of http-streaming transport.
+
 ## [5.2.0-beta3] (25-01-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*  
 
 **Bug Fixes**
 
--  Fixed the bug reported with [issue #3](https://github.com/Lightstreamer/Lightstreamer-lib-client-dotnet/issues/3).
+- Fixed the bug reported with [issue #3](https://github.com/Lightstreamer/Lightstreamer-lib-client-dotnet/issues/3).
 
  
 ## [5.2.0-beta2] (18-01-2023)
@@ -15,7 +23,7 @@
 
 **Improvements**
 
-- Removed the dependency on CookieManager switching from HttpCookie to Cookie type
+- Removed the dependency on CookieManager switching from HttpCookie to Cookie type.
   
 ## [5.2.0-beta] (11-01-2023)
 
