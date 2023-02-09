@@ -207,8 +207,6 @@ namespace com.lightstreamer.client
             {
                 SubscribeTutor tutor = new SubscribeTutor(this, subscription.SubscriptionId, subscription.getPhase(), sessionThread, 0);
 
-                log.Debug("Preparing subscription 3: " + tutor.session.SessionId);
-
                 manager.sendSubscription(request, tutor);
 
                 log.Debug("Preparing subscription 4.");
@@ -574,19 +572,22 @@ namespace com.lightstreamer.client
 
             public virtual void onSubscription(int subscriptionId, long reconfId)
             {
-                int? waitingId = outerInstance.pendingSubscriptionChanges[subscriptionId];
-                if (waitingId == null)
+                if (outerInstance.pendingSubscriptionChanges.ContainsKey(subscriptionId))
                 {
-                    //don't care anymore
-                    return;
-                }
+                    int? waitingId = outerInstance.pendingSubscriptionChanges[subscriptionId];
+                    if (waitingId == null)
+                    {
+                        //should not happen
+                        return;
+                    }
 
-                //if lower we're still waiting the newer one
-                //if equal we're done
-                //higher is not possible
-                if (reconfId == waitingId)
-                {
-                    outerInstance.pendingSubscriptionChanges.Remove(subscriptionId);
+                    //if lower we're still waiting the newer one
+                    //if equal we're done
+                    //higher is not possible
+                    if (reconfId == waitingId)
+                    {
+                        outerInstance.pendingSubscriptionChanges.Remove(subscriptionId);
+                    }
                 }
             }
 
@@ -675,56 +676,78 @@ namespace com.lightstreamer.client
 
             public override void notifySender(bool failed)
             {
-                Subscription subscription = outerInstance.subscriptions[subscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(subscriptionId))
+                {
+                    Subscription subscription = outerInstance.subscriptions[subscriptionId];
+                    if (subscription == null)
+                    {
+                        //should not happen
+                        log.Warn("Subscription not found [" + subscriptionId + "/" + outerInstance.manager.SessionId + "]");
+                        return;
+                    }
+                    if (!subscription.checkPhase(subscriptionPhase))
+                    {
+                        //we don't care
+                        return;
+                    }
+
+                    base.notifySender(failed);
+                    if (!failed)
+                    {
+                        subscription.onSubscriptionSent();
+                        this.subscriptionPhase = subscription.getPhase();
+                    }
+                } else
                 {
                     log.Warn("Subscription not found [" + subscriptionId + "/" + outerInstance.manager.SessionId + "]");
                     return;
-                }
-                if (!subscription.checkPhase(subscriptionPhase))
-                {
-                    //we don't care
-                    return;
-                }
-
-                base.notifySender(failed);
-                if (!failed)
-                {
-                    subscription.onSubscriptionSent();
-                    this.subscriptionPhase = subscription.getPhase();
                 }
             }
 
             protected internal override bool verifySuccess()
             {
-                Subscription subscription = outerInstance.subscriptions[subscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(subscriptionId))
+                {
+                    Subscription subscription = outerInstance.subscriptions[subscriptionId];
+                    if (subscription == null)
+                    {
+                        //should not happen
+                        return true;
+                    }
+                    if (!subscription.checkPhase(subscriptionPhase))
+                    {
+                        //something else happened, consider it a success
+                        return true;
+                    }
+                    return subscription.Subscribed; //== return false
+                } else
                 {
                     //subscription was removed, no need to keep going, let's say it's a success
                     return true;
                 }
-                if (!subscription.checkPhase(subscriptionPhase))
-                {
-                    //something else happened, consider it a success
-                    return true;
-                }
-                return subscription.Subscribed; //== return false
             }
 
             protected internal override void doRecovery()
             {
-                Subscription subscription = outerInstance.subscriptions[subscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(subscriptionId) )
+                {
+                    Subscription subscription = outerInstance.subscriptions[subscriptionId];
+                    if (subscription == null)
+                    {
+                        //should not happen
+                        return;
+                    }
+                    if (!subscription.checkPhase(subscriptionPhase))
+                    {
+                        //something else happened
+                        return;
+                    }
+                    outerInstance.resubscribe(subscription, this.timeoutMs);
+                } else
                 {
                     //subscription was removed, no need to keep going
                     return;
                 }
-                if (!subscription.checkPhase(subscriptionPhase))
-                {
-                    //something else happened
-                    return;
-                }
-                outerInstance.resubscribe(subscription, this.timeoutMs);
             }
 
             public override void notifyAbort()
@@ -741,17 +764,25 @@ namespace com.lightstreamer.client
 
             public override bool shouldBeSent()
             {
-                Subscription subscription = outerInstance.subscriptions[subscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(subscriptionId))
+                {
+                    Subscription subscription = outerInstance.subscriptions[subscriptionId];
+                    if (subscription == null)
+                    {
+                        //should not happen
+                        return false;
+                    }
+                    if (!subscription.checkPhase(subscriptionPhase))
+                    {
+                        return false;
+                    }
+                    return true;
+                } else
                 {
                     //subscription was removed, no need to send the request
                     return false;
                 }
-                if (!subscription.checkPhase(subscriptionPhase))
-                {
-                    return false;
-                }
-                return true;
+                
             }
         }
 
@@ -772,67 +803,86 @@ namespace com.lightstreamer.client
 
             protected internal override bool verifySuccess()
             {
-                int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
-                if (waitingId == null)
+                if (outerInstance.pendingSubscriptionChanges.ContainsKey(this.request.SubscriptionId))
+                {
+                    int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
+                    int? reconfId = this.request.ReconfId;
+
+                    //if lower we don't care about this anymore
+                    //if equal we're still waiting
+                    //higher is not possible
+                    return reconfId < waitingId;
+                } else 
                 {
                     return true;
                 }
-
-                int? reconfId = this.request.ReconfId;
-
-                //if lower we don't care about this anymore
-                //if equal we're still waiting
-                //higher is not possible
-                return reconfId < waitingId;
             }
 
             protected internal override void doRecovery()
             {
-                Subscription subscription = outerInstance.subscriptions[this.request.SubscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(this.request.SubscriptionId))
+                {
+                    Subscription subscription = outerInstance.subscriptions[this.request.SubscriptionId];
+                    if (subscription == null)
+                    {
+                        //should not happen
+                        return;
+                    }
+                    outerInstance.changeFrequency(subscription, this.timeoutMs, this.request.ReconfId);
+                } else
                 {
                     //subscription was removed, no need to keep going
                     return;
                 }
-                outerInstance.changeFrequency(subscription, this.timeoutMs, this.request.ReconfId);
+
             }
 
             public override void notifyAbort()
             {
-                int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
-                if (waitingId == null)
+                if (outerInstance.pendingSubscriptionChanges.ContainsKey(this.request.SubscriptionId))
+                {
+                    int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
+                    if (waitingId == null)
+                    {
+                        //should not happen
+                        return;
+                    }
+
+                    int? reconfId = this.request.ReconfId;
+                    if (waitingId.Equals(reconfId))
+                    {
+                        outerInstance.pendingSubscriptionChanges.Remove(this.request.SubscriptionId);
+                    }
+                } else
                 {
                     return;
-                }
-
-                int? reconfId = this.request.ReconfId;
-                if (waitingId.Equals(reconfId))
-                {
-                    outerInstance.pendingSubscriptionChanges.Remove(this.request.SubscriptionId);
                 }
             }
 
             public override bool shouldBeSent()
             {
-                Subscription subscription = outerInstance.subscriptions[this.request.SubscriptionId];
-                if (subscription == null)
+                if (outerInstance.subscriptions.ContainsKey(this.request.SubscriptionId))
+                {
+                    Subscription subscription = outerInstance.subscriptions[this.request.SubscriptionId];
+                } else
                 {
                     //subscription was removed, no need to keep going
                     return false;
                 }
 
-                int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
-                if (waitingId == null)
+                if (outerInstance.pendingSubscriptionChanges.ContainsKey(this.request.SubscriptionId))
+                {
+                    int? waitingId = outerInstance.pendingSubscriptionChanges[this.request.SubscriptionId];
+                    int? reconfId = this.request.ReconfId;
+
+                    //if lower we don't care about this anymore
+                    //if equal we're still waiting
+                    //higher is not possible
+                    return reconfId.Equals(waitingId);
+                } else 
                 {
                     return false;
                 }
-
-                int? reconfId = this.request.ReconfId;
-
-                //if lower we don't care about this anymore
-                //if equal we're still waiting
-                //higher is not possible
-                return reconfId.Equals(waitingId);
             }
         }
     }

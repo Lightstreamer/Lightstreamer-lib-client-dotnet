@@ -159,13 +159,10 @@ namespace com.lightstreamer.client.transport.providers.netty
                 {
                     copyLinePart(buf, startIndex, eolIndex + 1);
 
-                    log.Debug("Post copyLinePart hasHead.");
                     try
                     {
                         string line = linePart.toLine();
                         networkListener.onMessage(line);
-
-                        log.Debug(" :.: " + networkListener.GetType() + " - " + line);
                     } catch (Exception e)
                     {
                         log.Warn("Error in retrieving a message: " + e.Message);
@@ -181,21 +178,12 @@ namespace com.lightstreamer.client.transport.providers.netty
                 {
                     string line = byteBufToString(buf, startIndex, eolIndex - 1); // exclude CR LF chars
                     networkListener.onMessage(line);
-                    if (log.IsDebugEnabled)
-                    {
-                        log.Debug(" .:. " + networkListener.GetType() + " - " + line);
-                    }
 
                     startIndex = eolIndex + 1;
                     eolIndex = findEol(buf, startIndex, endIndex);
                 }
                 /* tail */
                 bool hasTail = startIndex != endIndex;
-
-                if (log.IsDebugEnabled)
-                {
-                    log.Debug(" .:.: " + hasTail + "(" + ( endIndex - startIndex ) + ")");
-                }
 
                 if (hasTail)
                 {
@@ -204,8 +192,6 @@ namespace com.lightstreamer.client.transport.providers.netty
                 else
                 {
                     linePart.Reset();
-
-                    log.Debug("linePart: " + linePart.Size());
                 }
             }
         }
@@ -218,8 +204,6 @@ namespace com.lightstreamer.client.transport.providers.netty
         private int findEol(IByteBuffer buf, int startIndex, int endIndex)
         {
             int eolIndex = -1;
-
-            log.Debug("findEol: " + startIndex + " <> " + endIndex);
 
             // log.Debug("findEol - buf:" + buf.GetString(startIndex, endIndex, Encoding.UTF8));
 
@@ -249,8 +233,6 @@ namespace com.lightstreamer.client.transport.providers.netty
                 eolIndex = crIndex + 1;
             }
 
-            log.Debug("findEol - cr: " + crIndex + " eol:" + eolIndex);
-
             return eolIndex;
         }
 
@@ -262,9 +244,6 @@ namespace com.lightstreamer.client.transport.providers.netty
         {
             try
             {
-
-                log.Debug("copyLinePart: " + linePart.Length + " - " + linePart.Position);
-
                 buf.GetBytes(startIndex, linePart, endIndex - startIndex);
             }
             catch (IOException e)
@@ -316,7 +295,6 @@ namespace com.lightstreamer.client.transport.providers.netty
             internal virtual string toLine()
             {
                 int end_b = (int)base.Length;
-                log.Debug("toLine: " + end_b);
 
                 Debug.Assert(base.Length >= 2);
                 byte[] b = base.GetBuffer();
@@ -325,15 +303,11 @@ namespace com.lightstreamer.client.transport.providers.netty
 
                 string temp_s = System.Text.Encoding.UTF8.GetString(b, 0, end_b);
 
-                log.Debug("Temp String before: " + temp_s);
-
                 char[] trailers = new char[2];
                 trailers[0] = '\n';
                 trailers[1] = '\r';
                 
                 temp_s = temp_s.TrimEnd(trailers);
-
-                log.Debug("Temp String after: " + temp_s);
 
                 return temp_s;
 
