@@ -622,7 +622,7 @@ namespace com.lightstreamer.client.protocol
                  * - an unexpected number of responses
                  */
 
-                outerInstance.log.Info("Http request process messages No. " + messages.Count);
+                outerInstance.log.Info("Http request process messages No. " + messages.Count  + " expected " + listeners.Count + ".");
 
                 if (messages.Count == 1 && messages[0].StartsWith("ERROR", StringComparison.Ordinal))
                 {
@@ -642,7 +642,11 @@ namespace com.lightstreamer.client.protocol
                 }
                 else if (messages.Count != listeners.Count)
                 {
-                    outerInstance.log.Error("Control request returned an unexpected number of responses: " + messages);
+                    outerInstance.log.Error("Control request returned an unexpected number of responses; expected " + listeners.Count + ", returned " + messages.Count);
+                    foreach (string msg in messages)
+                    {
+                        outerInstance.log.Error("Unexpected? Message: " + msg);
+                    }
                     throw new ProtocolErrorException("61", "The number of received responses is different from the number of batched requests: " + string.Join(",", messages));
 
                 }

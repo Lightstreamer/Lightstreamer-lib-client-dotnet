@@ -72,7 +72,7 @@ namespace com.lightstreamer.client
         /// <summary>
         /// A constant string representing the version of the library.
         /// </summary>
-        public static readonly string LIB_VERSION = "5.2.0-beta5".Trim();
+        public static readonly string LIB_VERSION = "5.2.0-beta6".Trim();
 
         private static readonly Regex ext_alpha_numeric = new Regex("^[a-zA-Z0-9_]*$");
 

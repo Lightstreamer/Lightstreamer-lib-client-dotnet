@@ -1,16 +1,24 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.2.0-beta6] (16-02-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*  
+
+**Bug Fixes**
+
+-  Fixed a bug which under certain circumstances could cause an InvalidCastException.
+
 ## [5.2.0-beta5] (08-02-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*  
 
 **Bug Fixes**
 
-- Improved subscription management to avoid KeyNotFoundException cases
+- Improved subscription management to avoid KeyNotFoundException cases.
 
 **Improvements**
 
-- Revised DEBUG level log prints
+- Revised DEBUG level log prints.
 
 ## [5.2.0-beta4] (31-01-2023)
 

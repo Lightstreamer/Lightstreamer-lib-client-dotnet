@@ -206,15 +206,20 @@ namespace com.lightstreamer.client.transport.providers.netty
                         listener.onOpen();
                     }
                     Task chf = ch.WriteAndFlushAsync(new TextWebSocketFrame(message));
-                    chf.ContinueWith((antecedent, outerInstance) =>
+                    chf.ContinueWith((antecedent, mchnl) =>
                     {
-
-                        if (antecedent.IsFaulted || antecedent.IsCanceled)
+                        try
                         {
-                            ((MyChannel)outerInstance).onBroken(message, antecedent.Exception);
+                            if (antecedent.IsFaulted)
+                            {
+                                ((MyChannel)mchnl).onBroken(message, antecedent.Exception);
+                            }
+                        } catch (Exception ex)
+                        {
+                            log.Warn("Warning on WriteAndFlushAsync: " + ex.Message);
                         }
-                    }, ch);
-
+                        
+                    }, this);
                 }
             }
 
