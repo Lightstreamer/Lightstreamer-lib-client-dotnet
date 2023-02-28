@@ -144,7 +144,7 @@ namespace com.lightstreamer.client.requests
             if (result.Length == 0)
             {
                 /* empty query string is not allowed by the server: add an empty line */
-                result.AppendLine();
+                result.Append("\r\n");
             }
             return result;
         }
