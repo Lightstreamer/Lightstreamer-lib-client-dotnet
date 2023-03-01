@@ -1,12 +1,20 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.2.0-beta7] (28-02-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*  
+
+**Bug Fixes**
+
+- Fixed a bug affecting batch request that could not be properly recognized by the server due to incorrect end-of-line use in non-Windows environments.
+
 ## [5.2.0-beta6] (16-02-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*  
 
 **Bug Fixes**
 
--  Fixed a bug which under certain circumstances could cause an InvalidCastException.
+- Fixed a bug which under certain circumstances could cause an InvalidCastException.
 
 ## [5.2.0-beta5] (08-02-2023)
 
