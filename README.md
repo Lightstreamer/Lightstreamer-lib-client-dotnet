@@ -1,6 +1,6 @@
 # Lightstreamer .NET Standard Client SDK 
 
-> ⚠️ This library has been superseded by the **Lightstreamer Client SDKs** based on [Haxe](https://haxe.org). <br>
+> ⚠️ This library will be superseded by the **Lightstreamer Client SDKs** based on [Haxe](https://haxe.org). <br>
 Learn more on the [🔥new project page🔥](https://github.com/Lightstreamer/Lightstreamer-lib-client-haxe).
 
 Lightstreamer .NET Standard Client SDK enables any application which supports Microsoft .Net Standard 2.0 to communicate bidirectionally with a **Lightstreamer Server**.
