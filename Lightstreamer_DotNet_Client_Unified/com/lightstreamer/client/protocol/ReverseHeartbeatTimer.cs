@@ -184,7 +184,7 @@ namespace com.lightstreamer.client.protocol
             {
                 Debug.Assert(lastSentTimeNs != -1);
                 Debug.Assert(currentIntervalMs != -1);
-                long timeElapsedMs = ( Stopwatch.GetTimestamp() - lastSentTimeNs ) / 1_000_000; // convert to millis
+                long timeElapsedMs = (Stopwatch.GetTimestamp() - lastSentTimeNs) / (Stopwatch.Frequency / 1000); // convert to millis
                 long timeLeftMs = currentIntervalMs - timeElapsedMs;
                 return timeLeftMs;
             }

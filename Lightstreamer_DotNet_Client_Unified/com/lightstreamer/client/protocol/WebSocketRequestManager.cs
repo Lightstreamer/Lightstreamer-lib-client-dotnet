@@ -20,6 +20,7 @@ using com.lightstreamer.client.requests;
 using com.lightstreamer.client.session;
 using com.lightstreamer.client.transport;
 using com.lightstreamer.util;
+using DotNetty.Common.Concurrency;
 using Lightstreamer.DotNet.Logging.Log;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,6 +66,29 @@ namespace com.lightstreamer.client.protocol
         /// </summary>
         private readonly IDictionary<long, RequestListener> pendingRequestMap = new Dictionary<long, RequestListener>();
         private ListenableFuture openWsFuture;
+
+        private class MyRunnableError : IRunnable
+        {
+            public MyRunnableError(StreamListener reqListener, ILogger logg)
+            {
+                ReqListener = reqListener;
+                log = logg;
+            }
+
+            internal MyRunnableError()
+            {
+
+            }
+
+            public StreamListener ReqListener { get; }
+            private ILogger log;
+
+            public void Run()
+            {
+                log.Warn("WebSocketRequestManager - MyRunnableError run");
+                ReqListener.onBrokenWS();
+            }
+        }
 
         public WebSocketRequestManager(SessionThread sessionThread, Protocol protocol, InternalConnectionOptions options)
         {
@@ -124,8 +148,8 @@ namespace com.lightstreamer.client.protocol
             {
                 // no transport: this case can happen when transport is polling
                 bindRequest = new PendingBind(request, reqListener, bindFuture);
-                openWS(protocol, request.TargetServer, reqListener);
-
+                log.Info(" WebSocket Manager .. bindSession p2: " + wsTransport);
+                openWS(protocol, request.TargetServer, reqListener).onRejected(new MyRunnableError(reqListener, log));
             }
             else
             {

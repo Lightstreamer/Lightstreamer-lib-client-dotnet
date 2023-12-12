@@ -1,5 +1,15 @@
 # Lightstreamer Changelog - SDK for .NET Standard Clients
 
+## [5.1.9] (12-12-2023)
+
+*Compatible with Lightstreamer Server since version 7.0.1*
+
+**Bug Fixes**
+
+- Fixed a bug that could lead in some particular environments to the failure of sending the reverse heartbeat message when requested.
+
+- Fixed a bug that could cause the failure to report an error and the subsequent session recovery actions in specific error scenarios when sending a bind request following a specific server request.
+
 ## [5.1.8] (03-01-2023)
 
 *Compatible with Lightstreamer Server since version 7.0.1*
