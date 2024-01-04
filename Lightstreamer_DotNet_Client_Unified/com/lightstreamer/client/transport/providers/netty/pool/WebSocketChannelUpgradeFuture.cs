@@ -180,7 +180,7 @@ namespace com.lightstreamer.client.transport.providers.netty.pool
                  {
                      try
                      {
-                         Thread.Sleep(2000);
+                         // Thread.Sleep(2000);
 
                          /* set cookies and extra headers */
                          string cookies = address.Cookies;

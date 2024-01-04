@@ -543,7 +543,7 @@ namespace com.lightstreamer.client.protocol
             {
                 if (fullRequest.Length > 0)
                 {
-                    fullRequest.AppendLine();
+                    fullRequest.Append("\r\n");
                 }
                 fullRequest.Append(request.getTransportAwareQueryString(null, true));
             }
